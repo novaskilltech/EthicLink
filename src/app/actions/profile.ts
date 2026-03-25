@@ -2,15 +2,19 @@
 
 import { db } from "@/lib/firebase-admin";
 import { revalidatePath } from "next/cache";
+import { Profile } from "@/lib/types";
 
 async function getAuthUser() {
   return { uid: "test-user-id" };
 }
 
-export async function getProfile(userId: string) {
-  const doc = await db.collection("profiles").doc(userId).get();
+export async function getProfile(userId?: string) {
+  const id = userId || (await getAuthUser())?.uid;
+  if (!id) return null;
+
+  const doc = await db.collection("profiles").doc(id).get();
   if (!doc.exists) return null;
-  return doc.data();
+  return doc.data() as Profile;
 }
 
 export async function updateProfile(data: any) {

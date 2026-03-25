@@ -13,11 +13,13 @@ const LAYOUTS = [
   { id: LayoutPreset.MINIMAL, label: "Minimal", icon: "▫", pro: true },
 ];
 
-export function LayoutSelector({ current, plan }: { current: LayoutPreset, plan: Plan }) {
+export function LayoutSelector({ initialPreset, plan = Plan.FREE }: { initialPreset: LayoutPreset, plan?: Plan }) {
   const [isPending, startTransition] = useTransition();
 
   const handleSelect = (preset: LayoutPreset) => {
-    startTransition(() => updateAppearance({ layoutPreset: preset }));
+    startTransition(() => {
+      updateAppearance({ layoutPreset: preset });
+    });
   };
 
   return (
@@ -32,7 +34,7 @@ export function LayoutSelector({ current, plan }: { current: LayoutPreset, plan:
             onClick={() => handleSelect(layout.id as LayoutPreset)}
             className={cn(
               "relative flex flex-col items-center gap-3 p-6 rounded-2xl border-2 transition-all group",
-              current === layout.id 
+              initialPreset === layout.id 
                 ? "border-primary bg-primary/5 shadow-lg shadow-primary/10" 
                 : "border-white/5 hover:border-primary/30 bg-white/5 hover:bg-white/10",
               isLocked && "opacity-40 grayscale cursor-not-allowed"

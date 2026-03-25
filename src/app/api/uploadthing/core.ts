@@ -1,12 +1,16 @@
 import { createUploadthing, type FileRouter } from "uploadthing/next";
-import { auth } from "@clerk/nextjs/server";
+import { cookies } from "next/headers";
 
 const f = createUploadthing();
 
 export const ourFileRouter = {
   avatarUploader: f({ image: { maxFileSize: "4MB" } })
     .middleware(async () => {
-      const { userId } = await auth();
+      // Temporary: Accept uploads for dev or check cookie
+      // In production, verify Firebase ID Token from cookies
+      const cookieStore = await cookies();
+      const userId = cookieStore.get("userId")?.value || "dev-user";
+      
       if (!userId) throw new Error("Unauthorized");
       return { userId };
     })

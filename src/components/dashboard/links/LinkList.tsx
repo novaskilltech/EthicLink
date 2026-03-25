@@ -47,12 +47,12 @@ export function LinkList({ initialLinks }: { initialLinks: LinkItem[] }) {
       setLinks(newLinks);
 
       // Save to DB
-      startTransition(async () => {
+      startTransition(() => {
         const updates = newLinks.map((link, index) => ({
           id: link.id,
           order: index, // Changed from sortOrder to order to match Firestore action
         }));
-        await reorderLinks(updates);
+        reorderLinks(updates);
       });
     }
   }

@@ -13,13 +13,14 @@ export function LinkForm() {
     const label = formData.get("label") as string;
     const url = formData.get("url") as string;
 
-    startTransition(async () => {
-      const result = await addLink({ label, url });
-      if (result.success) {
-        setIsOpen(false);
-      } else {
-        alert(result.error);
-      }
+    startTransition(() => {
+      addLink({ label, url }).then((result) => {
+        if (result.success) {
+          setIsOpen(false);
+        } else {
+          alert(result.error);
+        }
+      });
     });
   }
 

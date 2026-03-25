@@ -2,6 +2,7 @@
 
 import { db } from "@/lib/firebase-admin";
 import { revalidatePath } from "next/cache";
+import { LinkItem } from "@/lib/types";
 
 // Helper to get authenticated user (Stub for MVP)
 async function getAuthUser() {
@@ -9,14 +10,17 @@ async function getAuthUser() {
   return { uid: "test-user-id" }; 
 }
 
-export async function getLinks(userId: string) {
+export async function getLinks(userId?: string) {
   try {
+    const id = userId || (await getAuthUser())?.uid;
+    if (!id) return [];
+
     const snapshot = await db.collection("links")
-      .where("uid", "==", userId)
+      .where("uid", "==", id)
       .orderBy("order", "asc")
       .get();
     
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as LinkItem[];
   } catch (error) {
     console.error("Firestore getLinks Error:", error);
     return [];
@@ -47,6 +51,20 @@ export async function addLink(data: { label: string; url: string }) {
   }
 }
 
+
+export async function toggleLinkActive(id: string, active: boolean) {
+  const user = await getAuthUser();
+  if (!user) throw new Error("Unauthorized");
+
+  try {
+    await db.collection("links").doc(id).update({ active });
+    revalidatePath("/dashboard/links");
+    revalidatePath("/[slug]");
+    return { success: true };
+  } catch (error) {
+    return { error: "Failed to toggle link status" };
+  }
+}
 
 export async function deleteLink(id: string) {
   const user = await getAuthUser();

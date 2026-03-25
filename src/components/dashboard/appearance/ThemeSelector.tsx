@@ -23,7 +23,9 @@ export function ThemeSelector({ initialData, plan }: { initialData: any, plan: s
   function handleUpdate(update: any) {
     const newTheme = { ...theme, ...update };
     setTheme(newTheme);
-    startTransition(() => updateTheme(update));
+    startTransition(() => {
+      updateTheme(update);
+    });
   }
 
   return (

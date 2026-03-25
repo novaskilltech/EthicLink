@@ -18,7 +18,9 @@ export function UpgradeCard({ plan, currentPlan, price, features, color, buttonC
   const [isPending, startTransition] = useTransition();
 
   const handleUpgrade = () => {
-    startTransition(() => createCheckoutSession(plan));
+    startTransition(() => {
+      createCheckoutSession(plan);
+    });
   };
 
   const isCurrent = currentPlan === plan;

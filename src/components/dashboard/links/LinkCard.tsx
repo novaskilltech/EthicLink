@@ -30,13 +30,17 @@ export function LinkCard({ link }: { link: LinkItem }) {
   function handleToggle() {
     const newState = !active;
     setActive(newState);
-    startTransition(() => toggleLinkActive(link.id, newState));
+    startTransition(() => {
+      toggleLinkActive(link.id, newState);
+    });
   }
 
   function handleDelete(e: React.MouseEvent) {
     e.stopPropagation();
     if (confirm("Delete this link?")) {
-      startTransition(() => deleteLink(link.id));
+      startTransition(() => {
+        deleteLink(link.id);
+      });
     }
   }
 

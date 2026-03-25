@@ -16,7 +16,9 @@ export function ProfileForm({ initialData }: { initialData: any }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    startTransition(() => updateProfile(formData));
+    startTransition(() => {
+      updateProfile(formData);
+    });
   };
 
   return (
