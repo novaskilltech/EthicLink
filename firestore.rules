@@ -1,0 +1,18 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Permet à l'utilisateur de lire/écrire ses propres documents de profil
+    match /profiles/{userId} {
+      allow read: if true; // Public par défaut
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Liens : Lecture publique, Écriture par le propriétaire
+    match /links/{linkId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == resource.data.uid;
+      allow create: if request.auth != null;
+    }
+  }
+}
