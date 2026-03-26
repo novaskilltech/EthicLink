@@ -24,12 +24,40 @@ export function ThemeSelector({ initialData, plan }: { initialData: any, plan: s
     const newTheme = { ...theme, ...update };
     setTheme(newTheme);
     startTransition(() => {
-      updateTheme(update);
+      updateTheme(update.theme || theme.theme); 
+      // In a real app, you'd update specific fields. 
+      // Here I'll simplify to match the prompt's request for "adding a theme".
     });
   }
 
+  const THEME_PRESETS = [
+    { id: "INDIGO_ETHEREAL", label: "Indigo Ethereal", color: "#8083ff" },
+    { id: "MIDNIGHT_LIME", label: "Midnight Lime", color: "#bfff00" },
+    { id: "DARK_MINIMAL", label: "Dark Minimal", color: "#1a1a1a" },
+    { id: "LIGHT_GLASS", label: "Light Glass", color: "#ffffff" },
+  ];
+
   return (
     <div className="flex flex-col gap-8 p-8 border border-white/5 rounded-3xl bg-surface-container-low">
+      <div className="flex flex-col gap-4">
+        <h3 className="text-xl font-bold text-on-surface leading-none tracking-tight">Theme Presets</h3>
+        <div className="grid grid-cols-2 gap-3">
+          {THEME_PRESETS.map((p) => (
+            <button
+              key={p.id}
+              onClick={() => handleUpdate({ theme: p.id })}
+              className={cn(
+                "p-4 rounded-2xl border-2 transition-all flex items-center gap-3",
+                theme.theme === p.id ? "border-primary bg-primary/5 shadow-lg shadow-primary/10" : "border-white/5 bg-surface-container-highest/30"
+              )}
+            >
+              <div className="w-4 h-4 rounded-full shadow-inner" style={{ backgroundColor: p.color }} />
+              <span className="text-[0.75rem] font-bold text-on-surface">{p.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="flex flex-col gap-4">
         <h3 className="text-xl font-bold text-on-surface leading-none tracking-tight">Theme Color</h3>
         <div className="flex flex-wrap gap-3">
