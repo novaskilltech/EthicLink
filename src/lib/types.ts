@@ -8,7 +8,8 @@ export enum LayoutPreset {
 export enum ThemeType {
   INDIGO_ETHEREAL = "INDIGO_ETHEREAL",
   DARK_MINIMAL = "DARK_MINIMAL",
-  LIGHT_GLASS = "LIGHT_GLASS"
+  LIGHT_GLASS = "LIGHT_GLASS",
+  MIDNIGHT_LIME = "MIDNIGHT_LIME"
 }
 
 export enum Plan {

@@ -4,6 +4,7 @@ import { StackRenderer } from "./renderers/StackRenderer";
 // import { GridRenderer } from "./renderers/GridRenderer"; // If exists
 import { BentoRenderer } from "./renderers/BentoRenderer";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 interface PublicPageRendererProps {
   profile: any;
@@ -24,8 +25,18 @@ export function PublicPageRenderer({ profile, page }: PublicPageRendererProps) {
     }
   };
 
+  const getThemeClass = () => {
+    switch (page.theme) {
+      case "MIDNIGHT_LIME": return "bg-midnight-lime";
+      case "INDIGO_ETHEREAL": return "bg-indigo-ethereal";
+      case "DARK_MINIMAL": return "bg-black";
+      case "LIGHT_GLASS": return "bg-white text-black";
+      default: return "bg-indigo-ethereal";
+    }
+  };
+
   return (
-    <div className="min-h-screen w-full bg-black text-white font-sans selection:bg-white/20">
+    <div className={cn("min-h-screen w-full font-sans selection:bg-white/20", getThemeClass())}>
       <div className="max-w-2xl mx-auto py-16 px-6">
         {renderLayout()}
       </div>

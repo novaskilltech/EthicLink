@@ -23,22 +23,22 @@ export default function Home() {
       <section className="pt-32 pb-20 px-6 max-w-7xl mx-auto overflow-hidden">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <div className="space-y-8">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-tertiary-container text-on-tertiary-container text-[0.6875rem] uppercase tracking-widest font-bold">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#bfff00]/20 text-[#bfff00] text-[0.6875rem] uppercase tracking-widest font-bold border border-[#bfff00]/30 backdrop-blur-md">
               <Sparkles className="w-3.5 h-3.5 fill-current" />
-              New layouts available
+              Midnight Lime Edition
             </div>
-            <h1 className="text-5xl md:text-7xl font-headline font-black tracking-tighter leading-[0.95] text-on-surface">
-              Your digital identity, <span className="text-primary">simplified.</span>
+            <h1 className="text-5xl md:text-8xl font-headline font-black tracking-tighter leading-[0.85] text-on-surface">
+              Curate your <span className="text-[#bfff00]">digital existence.</span>
             </h1>
             <p className="text-xl text-on-surface-variant max-w-lg leading-relaxed">
-              Multiple 2D layouts for your unique link-in-bio. Treat your online presence as a high-end gallery exhibition.
+              Ditch the link-in-bio. Own a **Digital Gallery**. EthicLink transforms your social presence into a high-end exhibition with Bento architecture.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <Link href="/signup" className="primary-gradient text-on-primary px-8 py-4 rounded-xl font-bold text-lg hover:scale-105 transition-transform duration-200 shadow-lg shadow-primary/20 text-center">
-                Create your page for free
+              <Link href="/signup" className="lime-gradient text-black px-8 py-4 rounded-xl font-black text-lg hover:scale-105 transition-all duration-300 shadow-2xl shadow-[#bfff00]/20 text-center">
+                Get Started — It's Free
               </Link>
-              <Link href="/demo" className="bg-surface-container-highest text-on-surface px-8 py-4 rounded-xl font-bold text-lg hover:scale-105 transition-transform duration-200 text-center">
-                View Showcase
+              <Link href="/demo" className="bg-surface-container-highest/50 backdrop-blur-xl border border-white/5 text-on-surface px-8 py-4 rounded-xl font-bold text-lg hover:bg-white/10 transition-all duration-300 text-center">
+                View Gallery
               </Link>
             </div>
           </div>
@@ -49,13 +49,13 @@ export default function Home() {
               {/* Preview Bento Grid */}
               <div className="col-span-2 glass-card p-4 rounded-xl aspect-[16/9] flex flex-col justify-end">
                 <div className="w-full h-full rounded-lg bg-surface-container mb-4 overflow-hidden relative">
-                   <div className="absolute inset-0 primary-gradient opacity-20" />
+                   <div className="absolute inset-0 lime-gradient opacity-30" />
                 </div>
                 <div className="h-4 w-2/3 bg-white/20 rounded-full"></div>
               </div>
               <div className="glass-card p-4 rounded-xl aspect-square flex flex-col items-center justify-center gap-2">
-                <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
-                  <LinkIcon className="text-primary w-6 h-6" />
+                <div className="w-12 h-12 rounded-full bg-[#bfff00]/20 flex items-center justify-center border border-[#bfff00]/20">
+                  <LinkIcon className="text-[#bfff00] w-6 h-6" />
                 </div>
                 <div className="h-2 w-1/2 bg-white/20 rounded-full"></div>
               </div>
@@ -103,35 +103,35 @@ export default function Home() {
       {/* Features Section */}
       <section className="py-24 px-6 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-2 bg-surface-container p-12 rounded-xl relative overflow-hidden group">
+          <div className="md:col-span-2 bg-[#1a1a1a] border border-white/5 p-12 rounded-2xl relative overflow-hidden group">
             <div className="relative z-10 space-y-6">
-              <h2 className="text-3xl font-black tracking-tight text-on-surface">Simple Analytics for<br/>Modern Creators</h2>
-              <p className="text-on-surface-variant max-w-md">No complicated dashboards. See where your traffic comes from and what they click with one glance. Clear, actionable, and elegant.</p>
+              <h2 className="text-3xl font-black tracking-tight text-on-surface">Precision Analytics for<br/>Digital Curators</h2>
+              <p className="text-on-surface-variant max-w-md">No noise. Just high-fidelity data. See exactly how your gallery performs with real-time tracking and conversion insights.</p>
               <ul className="space-y-3 pt-4">
                 <li className="flex items-center gap-3 text-sm font-medium text-on-surface">
-                  <CheckCircle2 className="text-primary w-5 h-5" />
-                  Referral source tracking
+                  <CheckCircle2 className="text-[#bfff00] w-5 h-5" />
+                  Visual heatmap of link clicks
                 </li>
                 <li className="flex items-center gap-3 text-sm font-medium text-on-surface">
-                  <CheckCircle2 className="text-primary w-5 h-5" />
-                  Click-through rate heatmaps
+                  <CheckCircle2 className="text-[#bfff00] w-5 h-5" />
+                  Referral source authentication
                 </li>
               </ul>
             </div>
-            <div className="absolute -right-12 -bottom-12 w-64 h-64 bg-primary/10 rounded-full blur-3xl group-hover:bg-primary/20 transition-colors"></div>
-            <LineChart className="absolute right-8 top-1/2 -translate-y-1/2 hidden lg:block opacity-10 group-hover:opacity-20 transition-opacity w-32 h-32 text-primary" />
+            <div className="absolute -right-12 -bottom-12 w-64 h-64 bg-[#bfff00]/5 rounded-full blur-3xl group-hover:bg-[#bfff00]/10 transition-colors"></div>
+            <LineChart className="absolute right-8 top-1/2 -translate-y-1/2 hidden lg:block opacity-10 group-hover:opacity-30 transition-opacity w-32 h-32 text-[#bfff00]" />
           </div>
           
-          <div className="bg-surface-container p-12 rounded-xl flex flex-col justify-between">
+          <div className="bg-[#1a1a1a] border border-white/5 p-12 rounded-2xl flex flex-col justify-between group">
             <div className="space-y-4">
-              <div className="w-12 h-12 rounded-xl bg-tertiary/20 flex items-center justify-center">
-                <Wand2 className="text-tertiary w-6 h-6" />
+              <div className="w-12 h-12 rounded-xl bg-[#bfff00]/20 flex items-center justify-center border border-[#bfff00]/20">
+                <Wand2 className="text-[#bfff00] w-6 h-6" />
               </div>
-              <h3 className="text-2xl font-black text-on-surface">Premium Aesthetics</h3>
-              <p className="text-sm text-on-surface-variant leading-relaxed">Every LinkSaaS page uses our proprietary Curator engine to ensure your content always looks balanced and professional.</p>
+              <h3 className="text-2xl font-black text-on-surface group-hover:text-[#bfff00] transition-colors">Bento Aesthetic</h3>
+              <p className="text-sm text-on-surface-variant leading-relaxed">Every page is balanced by our Curator engine. It's not just a link; it's a statement of professionalism.</p>
             </div>
-            <Link href="/signup" className="text-primary font-bold text-sm inline-flex items-center gap-2 group mt-8">
-              Get Started
+            <Link href="/signup" className="text-[#bfff00] font-bold text-sm inline-flex items-center gap-2 group mt-8 underline-offset-4 hover:underline">
+              Start Curation
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
@@ -139,20 +139,20 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 px-6">
+      <section className="py-24 px-6 border-t border-white/5 bg-[#050505]">
         <div className="max-w-4xl mx-auto text-center space-y-12">
-          <h2 className="text-4xl md:text-6xl font-black tracking-tighter leading-tight text-on-surface">
-            Ready to curate your<br/>digital legacy?
+          <h2 className="text-4xl md:text-7xl font-black tracking-tighter leading-tight text-on-surface">
+            The era of the vertical<br/>list is <span className="text-red-500 line-through decoration-4">over.</span>
           </h2>
           <div className="flex flex-col sm:flex-row justify-center gap-6">
-            <Link href="/signup" className="primary-gradient text-on-primary px-10 py-5 rounded-xl font-bold text-xl hover:scale-105 transition-transform duration-200 text-center">
-              Create your page for free
+            <Link href="/signup" className="lime-gradient text-black px-10 py-5 rounded-xl font-black text-xl hover:scale-105 transition-all duration-300 shadow-2xl shadow-[#bfff00]/20 text-center">
+              Create your Gallery for free
             </Link>
-            <Link href="/demo" className="bg-surface-container-highest text-on-surface px-10 py-5 rounded-xl font-bold text-xl hover:scale-105 transition-transform duration-200 text-center">
+            <Link href="/demo" className="bg-white/5 backdrop-blur-md border border-white/10 text-on-surface px-10 py-5 rounded-xl font-bold text-xl hover:bg-white/10 transition-all duration-300 text-center">
               Explore Templates
             </Link>
           </div>
-          <p className="text-on-surface-variant text-sm font-medium">No credit card required. Free forever options available.</p>
+          <p className="text-on-surface-variant text-sm font-medium">Join 10,000+ creators curating their legacy. No credit card required.</p>
         </div>
       </section>
     </main>
