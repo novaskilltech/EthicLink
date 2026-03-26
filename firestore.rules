@@ -2,17 +2,21 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Fonction pour vérifier si l'utilisateur est l'admin global
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email == 'novaskilltech@gmail.com';
+    }
+
     // Permet à l'utilisateur de lire/écrire ses propres documents de profil
     match /profiles/{userId} {
       allow read: if true; // Public par défaut
-      allow write: if request.auth != null && request.auth.uid == userId;
+      allow write: if (request.auth != null && request.auth.uid == userId) || isAdmin();
     }
     
-    // Liens : Lecture publique, Écriture par le propriétaire
+    // Liens : Lecture publique, Écriture par le propriétaire ou Admin
     match /links/{linkId} {
       allow read: if true;
-      allow write: if request.auth != null && request.auth.uid == resource.data.uid;
-      allow create: if request.auth != null;
+      allow write: if (request.auth != null && resource == null) || (request.auth != null && resource.data.uid == request.auth.uid) || isAdmin();
     }
   }
 }
