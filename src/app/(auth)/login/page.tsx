@@ -11,6 +11,7 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { EmailAuthForm } from "@/components/auth/EmailAuthForm";
 
 export default function LoginPage() {
   const { user, loading, signInWithGoogle } = useAuth();
@@ -54,22 +55,25 @@ export default function LoginPage() {
 
         {/* Main Auth Card */}
         <div className="glass-card rounded-2xl p-8 shadow-2xl border border-white/5">
-          {/* Social Logins */}
-          <div className="space-y-4 mb-8">
-            <button 
-              onClick={handleGoogleSignIn}
-              className="w-full flex items-center justify-center gap-3 py-4 px-4 rounded-xl bg-surface-container-highest hover:bg-surface-bright transition-all duration-200 active:scale-95 group border border-white/5"
-            >
-              <Globe className="w-5 h-5 text-primary" />
-              <span className="text-sm font-bold">Continue with Google</span>
-            </button>
-            <button 
-              className="w-full flex items-center justify-center gap-3 py-4 px-4 rounded-xl bg-surface-container-highest/50 cursor-not-allowed opacity-50 border border-white/5"
-              disabled
-            >
-              <Mail className="w-5 h-5" />
-              <span className="text-sm font-bold opacity-50">Email coming soon</span>
-            </button>
+          {/* Auth Forms */}
+          <div className="mb-8">
+            <div className="grid grid-cols-1 gap-6">
+              <button 
+                onClick={handleGoogleSignIn}
+                className="w-full flex items-center justify-center gap-3 py-4 px-4 rounded-xl bg-surface-container-highest hover:bg-surface-bright transition-all duration-200 active:scale-95 group border border-white/5 shadow-sm"
+              >
+                <Globe className="w-5 h-5 text-[#bfff00]" />
+                <span className="text-sm font-bold uppercase tracking-widest text-[0.7rem]">Continue with Google</span>
+              </button>
+
+              <div className="relative flex items-center py-2 opacity-20">
+                <div className="flex-grow border-t border-white/5"></div>
+                <span className="flex-shrink mx-4 text-[0.6rem] uppercase tracking-widest text-on-surface-variant font-black">OR</span>
+                <div className="flex-grow border-t border-white/5"></div>
+              </div>
+
+              <EmailAuthForm />
+            </div>
           </div>
 
           {/* Divider */}
