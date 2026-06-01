@@ -1,136 +1,108 @@
-import Link from "next/link";
-import { Check, Star } from "lucide-react";
-import { cn } from "@/lib/utils";
+"use client";
 
-const plans = [
-  {
-    name: "FREE",
-    price: "0",
-    description: "Parfait pour commencer",
-    features: [
-      "Liens illimités",
-      "1 page publique",
-      "Layouts : vertical, grille, bento",
-      "Intégration musique & vidéos",
-      "Code QR",
-      "Statistiques de base",
-      "Thèmes simples",
-    ],
-    cta: "Commencer gratuitement",
-    href: "/sign-up",
-    color: "bg-emerald-500/10 text-emerald-600 border-emerald-200",
-    buttonColor: "bg-emerald-600 hover:bg-emerald-700",
-  },
-  {
-    name: "CREATOR",
-    price: "9",
-    description: "Pour les créateurs qui veulent se démarquer",
-    features: [
-      "Tout dans Free",
-      "Tous les layouts (horizontal + carrousel)",
-      "Suppression du branding",
-      "Analytics avancées (CTR, sources)",
-      "Thumbnails personnalisés",
-      "Sections & groupes de liens",
-      "3 à 5 pages",
-      "Thèmes premium",
-    ],
-    cta: "Passer à Creator",
-    href: "/dashboard/billing?plan=creator",
-    recommended: true,
-    color: "bg-blue-500/10 text-blue-600 border-blue-200",
-    buttonColor: "bg-blue-600 hover:bg-blue-700",
-  },
-  {
-    name: "PRO",
-    price: "19",
-    description: "Pour ceux qui veulent monétiser",
-    features: [
-      "Tout dans Creator",
-      "Vente de produits digitaux",
-      "Paiements (Stripe)",
-      "Prise de rendez-vous (booking)",
-      "Domaine personnalisé",
-      "Capture d’emails / newsletter",
-      "Pixels & tracking avancé",
-      "Export des analytics",
-    ],
-    cta: "Passer à Pro",
-    href: "/dashboard/billing?plan=pro",
-    color: "bg-purple-500/10 text-purple-600 border-purple-200",
-    buttonColor: "bg-purple-600 hover:bg-purple-700",
-  },
-  {
-    name: "BUSINESS",
-    price: "49",
-    description: "Pour les agences et créateurs avancés",
-    features: [
-      "Tout dans Pro",
-      "Multi-comptes / gestion d’équipe",
-      "White label (logo + marque)",
-      "API développeur",
-      "Analytics stratégiques",
-      "Priorité support",
-      "Accès anticipé aux features",
-    ],
-    cta: "Contacter Sales",
-    href: "/contact",
-    color: "bg-amber-500/10 text-amber-600 border-amber-200",
-    buttonColor: "bg-amber-600 hover:bg-amber-700",
-  },
-];
+import Link from "next/link";
+import { Check, Star, Sparkles, TrendingUp } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function PricingPage() {
+  const { t } = useLanguage();
+
+  const plans = [
+    {
+      name: t.pricing.plans.free.name,
+      price: t.pricing.plans.free.price,
+      description: t.pricing.plans.free.desc,
+      features: t.pricing.plans.free.features,
+      cta: t.pricing.plans.free.cta,
+      href: "/sign-up",
+      color: "bg-slate-500/10 text-slate-400 border-white/5",
+      buttonColor: "bg-surface-container-highest hover:bg-surface-bright text-on-surface border border-white/10",
+    },
+    {
+      name: t.pricing.plans.creator.name,
+      price: t.pricing.plans.creator.price,
+      description: t.pricing.plans.creator.desc,
+      features: t.pricing.plans.creator.features,
+      cta: t.pricing.plans.creator.cta,
+      href: "/dashboard/billing?plan=creator",
+      recommended: true,
+      color: "bg-[#bfff00]/20 text-[#bfff00] border-[#bfff00]/30",
+      buttonColor: "lime-gradient text-black hover:scale-[1.02] shadow-xl shadow-[#bfff00]/10",
+    },
+    {
+      name: t.pricing.plans.pro.name,
+      price: t.pricing.plans.pro.price,
+      description: t.pricing.plans.pro.desc,
+      features: t.pricing.plans.pro.features,
+      cta: t.pricing.plans.pro.cta,
+      href: "/dashboard/billing?plan=pro",
+      color: "bg-purple-500/10 text-purple-400 border-purple-900/30",
+      buttonColor: "bg-surface-container-highest hover:bg-surface-bright text-on-surface border border-white/10",
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-[#f8fafc] py-24 px-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-surface py-32 px-6 relative overflow-x-hidden">
+      {/* Background Decoration */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] rounded-full bg-primary/10 blur-[120px]"></div>
+        <div className="absolute top-[20%] -right-[5%] w-[30%] h-[30%] rounded-full bg-tertiary/5 blur-[100px]"></div>
+      </div>
+
+      <div className="max-w-6xl mx-auto">
         {/* Hero Section */}
-        <div className="text-center mb-20">
-          <h1 className="text-5xl md:text-7xl font-black tracking-tight text-slate-900 mb-6">
-            Crée ta page, développe ton audience,<br/> 
-            <span className="text-blue-600">monétise ton contenu</span>
+        <div className="text-center mb-24 space-y-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#bfff00]/20 text-[#bfff00] text-[0.6875rem] uppercase tracking-widest font-bold border border-[#bfff00]/30 backdrop-blur-md">
+            <Sparkles className="w-3.5 h-3.5 fill-current" />
+            {t.pricing.badge}
+          </div>
+          <h1 className="text-5xl md:text-8xl font-headline font-black tracking-tighter leading-[0.85] text-on-surface">
+            {t.pricing.heroTitle}
           </h1>
-          <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-            Une plateforme tout-en-un pour partager tes liens, présenter ton univers et générer des revenus.
+          <p className="text-xl text-on-surface-variant max-w-2xl mx-auto font-normal">
+            {t.pricing.heroSubtitle}
           </p>
         </div>
 
         {/* Pricing Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-24">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12 items-stretch">
           {plans.map((plan) => (
             <div
               key={plan.name}
               className={cn(
-                "relative flex flex-col p-8 rounded-[2.5rem] bg-white border-2 transition-all hover:shadow-2xl hover:-translate-y-2",
-                plan.recommended ? "border-blue-600 shadow-xl scale-105 z-10" : "border-slate-100"
+                "relative flex flex-col p-8 rounded-[2rem] bg-[#121212]/60 backdrop-blur-xl border-2 transition-all hover:scale-[1.01]",
+                plan.recommended 
+                  ? "border-[#bfff00] shadow-2xl shadow-[#bfff00]/5 z-10 md:-translate-y-2" 
+                  : "border-white/5"
               )}
             >
               {plan.recommended && (
-                <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-bold flex items-center gap-1">
-                  <Star className="w-3 h-3 fill-current" /> Le plus populaire
+                <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-[#bfff00] text-black px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest flex items-center gap-1 shadow-lg shadow-[#bfff00]/20">
+                  <Star className="w-3 h-3 fill-current" /> {t.pricing.mostPopular}
                 </div>
               )}
 
               <div className="mb-8">
-                <span className={cn("px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest", plan.color)}>
+                <span className={cn("px-3 py-1 rounded-full text-[0.65rem] font-bold uppercase tracking-widest border", plan.color)}>
                   {plan.name}
                 </span>
-                <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-5xl font-black text-slate-900">{plan.price}€</span>
-                  <span className="text-slate-500 font-medium">/mois</span>
+                <div className="mt-6 flex items-baseline gap-1">
+                  <span className="text-6xl font-headline font-black text-on-surface">{plan.price}€</span>
+                  <span className="text-on-surface-variant/60 font-medium">{t.pricing.perMonth}</span>
                 </div>
-                <p className="mt-2 text-slate-600 text-sm font-medium">
+                <p className="mt-4 text-on-surface-variant text-sm leading-relaxed font-normal">
                   {plan.description}
                 </p>
               </div>
 
               <div className="flex-1 space-y-4 mb-8">
                 {plan.features.map((feature) => (
-                  <div key={feature} className="flex items-start gap-3 text-sm text-slate-700">
-                    <div className="mt-0.5 p-0.5 rounded-full bg-slate-100 text-slate-900">
+                  <div key={feature} className="flex items-start gap-3 text-sm text-on-surface-variant">
+                    <div className="mt-0.5 p-0.5 rounded-full bg-white/5 text-primary">
                       <Check className="w-3 h-3" />
                     </div>
-                    <span>{feature}</span>
+                    <span className="font-normal">{feature}</span>
                   </div>
                 ))}
               </div>
@@ -138,7 +110,7 @@ export default function PricingPage() {
               <Link
                 href={plan.href}
                 className={cn(
-                  "w-full py-4 rounded-2xl text-center font-bold transition-all active:scale-95 text-white shadow-lg",
+                  "w-full py-4 rounded-xl text-center font-bold transition-all active:scale-95 text-sm",
                   plan.buttonColor
                 )}
               >
@@ -148,59 +120,49 @@ export default function PricingPage() {
           ))}
         </div>
 
-        {/* Why Us Section */}
-        <div className="bg-slate-900 rounded-[3rem] p-12 md:p-20 text-white overflow-hidden relative">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/20 blur-[120px] rounded-full" />
-            <div className="relative z-10 grid md:grid-cols-2 gap-12 items-center">
-                <div>
-                    <h2 className="text-4xl font-black mb-8">Pourquoi choisir notre plateforme ?</h2>
-                    <ul className="space-y-6">
-                         {[
-                            { t: "Layouts uniques", d: "Pas juste une liste de liens, un vrai mini-site." },
-                            { t: "Ultra rapide", d: "Optimisé mobile pour un chargement instantané." },
-                            { t: "Conçu pour la vente", d: "Intégration Stripe native pour monétiser vos fans." },
-                            { t: "Évolutif", d: "Nouvelles features chaque semaine (IA, Marketplace)." }
-                         ].map(item => (
-                             <li key={item.t} className="flex gap-4">
-                                 <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center flex-shrink-0">
-                                     <Check className="text-blue-400" />
-                                 </div>
-                                 <div className="flex flex-col">
-                                     <span className="font-bold text-lg">{item.t}</span>
-                                     <span className="text-slate-400">{item.d}</span>
-                                 </div>
-                             </li>
-                         ))}
-                    </ul>
+        {/* Stripe Fees Footnote */}
+        <p className="text-center text-xs text-on-surface-variant/40 mb-24 max-w-lg mx-auto font-normal">
+          {t.pricing.stripeFootnote}
+        </p>
+
+        {/* Economic Comparison Block */}
+        <div className="bg-[#121212]/80 border border-white/5 rounded-[2.5rem] p-12 backdrop-blur-xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 blur-[120px] rounded-full pointer-events-none" />
+          <div className="relative z-10 max-w-3xl mx-auto space-y-8">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-widest">
+                  <TrendingUp className="w-4 h-4" /> {t.pricing.comparisonAnalysis}
                 </div>
-                <div className="bg-white/5 border border-white/10 rounded-3xl p-8 backdrop-blur-xl">
-                     <h3 className="text-xl font-bold mb-6 text-center">Comparatif express</h3>
-                     <table className="w-full text-sm">
-                        <thead className="border-b border-white/10">
-                            <tr>
-                                <th className="py-4 text-left font-medium opacity-50">Fonction</th>
-                                <th className="py-4 text-center font-bold">Free</th>
-                                <th className="py-4 text-center font-bold text-blue-400">Pro</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-white/5">
-                            {[
-                                ["Liens illimités", "✅", "✅"],
-                                ["Layouts avancés", "❌", "✅"],
-                                ["Vente produits", "❌", "✅"],
-                                ["Domaine custom", "❌", "✅"]
-                            ].map(([f, fr, pr]) => (
-                                <tr key={f}>
-                                    <td className="py-4 font-medium">{f}</td>
-                                    <td className="py-4 text-center">{fr}</td>
-                                    <td className="py-4 text-center">{pr}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                     </table>
-                </div>
+                <h2 className="text-3xl font-headline font-black text-on-surface">{t.pricing.comparisonTitle}</h2>
+              </div>
+              <div className="bg-[#bfff00]/10 border border-[#bfff00]/20 rounded-2xl px-6 py-4">
+                <span className="text-xs text-on-surface-variant font-bold block uppercase tracking-widest">{t.pricing.thresholdLabel}</span>
+                <span className="text-2xl font-black text-[#bfff00]">{t.pricing.thresholdValue}</span>
+              </div>
             </div>
+
+            <p className="text-on-surface-variant leading-relaxed font-normal">
+              {t.pricing.comparisonDesc}
+            </p>
+
+            <div className="grid md:grid-cols-2 gap-6 pt-4">
+              <div className="bg-surface p-6 rounded-2xl border border-white/5 space-y-2">
+                <span className="text-xs text-on-surface-variant/60 font-bold uppercase tracking-wider block">{t.pricing.optionAFreeTitle}</span>
+                <p className="text-on-surface font-medium">{t.pricing.optionAFreeDesc}</p>
+              </div>
+              <div className="bg-surface p-6 rounded-2xl border border-white/5 space-y-2">
+                <span className="text-[#bfff00]/85 font-bold text-xs uppercase tracking-wider block">{t.pricing.optionBCreatorTitle}</span>
+                <p className="text-on-surface font-medium">{t.pricing.optionBCreatorDesc}</p>
+              </div>
+            </div>
+
+            <p className="text-sm text-on-surface-variant/60 text-center italic pt-4 font-normal">
+              {t.pricing.comparisonConclusion}
+            </p>
+          </div>
         </div>
+
       </div>
     </div>
   );

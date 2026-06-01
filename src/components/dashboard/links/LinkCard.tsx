@@ -2,15 +2,31 @@
 
 import type { LinkItem } from "@/lib/types";
 import { useState, useTransition } from "react";
-import { toggleLinkActive, deleteLink } from "@/app/actions/links";
+import { toggleLinkActive, deleteLink, updateLink } from "@/app/actions/links";
 import { cn } from "@/lib/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Trash2, ExternalLink } from "lucide-react";
+import { GripVertical, Trash2, ExternalLink, Edit2, X, Check, Image as ImageIcon } from "lucide-react";
+import { UploadButton } from "@/lib/uploadthing";
 
-export function LinkCard({ link }: { link: LinkItem }) {
+export function LinkCard({ 
+  link, 
+  userId, 
+  onLinksChanged 
+}: { 
+  link: LinkItem; 
+  userId?: string; 
+  onLinksChanged?: () => void; 
+}) {
   const [isPending, startTransition] = useTransition();
   const [active, setActive] = useState(link.active);
+  const [isEditing, setIsEditing] = useState(false);
+
+  // Editing states
+  const [editLabel, setEditLabel] = useState(link.label);
+  const [editUrl, setEditUrl] = useState(link.url);
+  const [editDescription, setEditDescription] = useState(link.description || "");
+  const [editThumbnailUrl, setEditThumbnailUrl] = useState(link.thumbnailUrl || "");
 
   const {
     attributes,
@@ -31,17 +47,170 @@ export function LinkCard({ link }: { link: LinkItem }) {
     const newState = !active;
     setActive(newState);
     startTransition(() => {
-      toggleLinkActive(link.id, newState);
+      toggleLinkActive(link.id, newState).then(() => {
+        if (onLinksChanged) onLinksChanged();
+      });
     });
   }
 
   function handleDelete(e: React.MouseEvent) {
     e.stopPropagation();
-    if (confirm("Delete this link?")) {
+    if (confirm("Supprimer ce lien ?")) {
       startTransition(() => {
-        deleteLink(link.id);
+        deleteLink(link.id).then(() => {
+          if (onLinksChanged) onLinksChanged();
+        });
       });
     }
+  }
+
+  function handleSaveEdit(e: React.FormEvent) {
+    e.preventDefault();
+    startTransition(() => {
+      updateLink(link.id, {
+        label: editLabel,
+        url: editUrl,
+        description: editDescription,
+        thumbnailUrl: editThumbnailUrl
+      }).then((res) => {
+        if (res.success) {
+          setIsEditing(false);
+          if (onLinksChanged) onLinksChanged();
+        } else {
+          alert(res.error);
+        }
+      });
+    });
+  }
+
+  if (isEditing) {
+    return (
+      <div 
+        ref={setNodeRef}
+        style={style}
+        className="flex flex-col gap-4 p-5 bg-surface-container rounded-2xl border-2 border-primary animate-in fade-in duration-200"
+      >
+        <div className="flex justify-between items-center">
+          <span className="text-[0.65rem] font-black uppercase tracking-widest text-primary">Modifier l'élément</span>
+          <button 
+            onClick={() => {
+              setIsEditing(false);
+              setEditLabel(link.label);
+              setEditUrl(link.url);
+              setEditDescription(link.description || "");
+              setEditThumbnailUrl(link.thumbnailUrl || "");
+            }}
+            className="p-1 hover:bg-surface-container-highest rounded text-on-surface-variant"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSaveEdit} className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1">
+              <label className="text-[0.6rem] font-bold uppercase tracking-widest text-on-surface-variant">Titre</label>
+              <input
+                value={editLabel}
+                onChange={(e) => setEditLabel(e.target.value)}
+                required
+                className="p-3 text-sm rounded-xl bg-surface-container-low text-on-surface border-none focus:ring-1 ring-primary placeholder:opacity-30"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-[0.6rem] font-bold uppercase tracking-widest text-on-surface-variant">URL de destination</label>
+              <input
+                type="url"
+                value={editUrl}
+                onChange={(e) => setEditUrl(e.target.value)}
+                required
+                className="p-3 text-sm rounded-xl bg-surface-container-low text-on-surface border-none focus:ring-1 ring-primary placeholder:opacity-30"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-[0.6rem] font-bold uppercase tracking-widest text-on-surface-variant">Description (Optionnelle)</label>
+            <textarea
+              value={editDescription}
+              onChange={(e) => setEditDescription(e.target.value)}
+              rows={2}
+              className="p-3 text-sm rounded-xl bg-surface-container-low text-on-surface border-none focus:ring-1 ring-primary placeholder:opacity-30 resize-none font-sans"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-[0.6rem] font-bold uppercase tracking-widest text-on-surface-variant">Miniature (Optionnelle)</label>
+            <div className="flex items-center gap-4 p-3 bg-surface-container-low rounded-xl">
+              {editThumbnailUrl ? (
+                <div className="relative w-12 h-12 rounded-lg overflow-hidden border border-white/10 shrink-0">
+                  <img src={editThumbnailUrl} alt="Thumbnail preview" className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => setEditThumbnailUrl("")}
+                    className="absolute inset-0 bg-black/60 opacity-0 hover:opacity-100 flex items-center justify-center text-error transition-opacity"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="w-12 h-12 rounded-lg bg-surface-container-highest flex items-center justify-center text-on-surface-variant/40 shrink-0 border border-dashed border-white/10">
+                  <ImageIcon className="w-5 h-5" />
+                </div>
+              )}
+              <div className="flex-1 flex flex-col gap-2">
+                <UploadButton
+                  endpoint="avatarUploader"
+                  onClientUploadComplete={(res) => {
+                    if (res && res[0]) {
+                      setEditThumbnailUrl(res[0].url);
+                    }
+                  }}
+                  onUploadError={(error: Error) => {
+                    alert(`Upload error: ${error.message}\nTip: You can also paste a direct image URL below.`);
+                  }}
+                  className="ut-button:bg-primary ut-button:h-8 ut-button:text-[0.65rem] ut-button:px-3 ut-button:rounded-lg ut-allowed-content:hidden"
+                />
+                <div className="flex flex-col gap-1">
+                  <span className="text-[0.6rem] font-bold text-on-surface-variant/60 text-center">OR</span>
+                  <input
+                    type="url"
+                    placeholder="Coller l'URL d'une image (ex: https://...)"
+                    value={editThumbnailUrl}
+                    onChange={(e) => setEditThumbnailUrl(e.target.value)}
+                    className="p-2 text-xs rounded-lg bg-surface-container-low text-on-surface border-none focus:ring-1 ring-primary placeholder:opacity-30"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-2 justify-end pt-2">
+            <button
+              type="button"
+              onClick={() => {
+                setIsEditing(false);
+                setEditLabel(link.label);
+                setEditUrl(link.url);
+                setEditDescription(link.description || "");
+                setEditThumbnailUrl(link.thumbnailUrl || "");
+              }}
+              className="px-4 py-2 text-xs font-bold bg-surface-container-highest text-on-surface-variant rounded-lg hover:bg-surface-bright transition-colors"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              disabled={isPending}
+              className="px-4 py-2 text-xs font-bold primary-gradient text-on-primary rounded-lg flex items-center gap-1.5 hover:scale-105 transition-transform"
+            >
+              <Check className="w-3.5 h-3.5" />
+              Enregistrer
+            </button>
+          </div>
+        </form>
+      </div>
+    );
   }
 
   return (
@@ -62,11 +231,21 @@ export function LinkCard({ link }: { link: LinkItem }) {
         <GripVertical className="w-5 h-5" />
       </div>
 
+      {/* Miniature Preview if exists */}
+      {link.thumbnailUrl && (
+        <div className="w-12 h-12 rounded-lg overflow-hidden border border-white/10 shrink-0 shadow-inner bg-surface-container-low">
+          <img src={link.thumbnailUrl} alt={link.label} className="w-full h-full object-cover" />
+        </div>
+      )}
+
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <h3 className="font-bold text-on-surface truncate">{link.label}</h3>
-          {!active && <span className="text-[0.65rem] uppercase tracking-widest bg-surface-container-highest px-1.5 py-0.5 rounded text-on-surface-variant font-bold">Hidden</span>}
+          {!active && <span className="text-[0.65rem] uppercase tracking-widest bg-surface-container-highest px-1.5 py-0.5 rounded text-on-surface-variant font-bold">Masqué</span>}
         </div>
+        {link.description && (
+          <p className="text-xs text-on-surface-variant/75 mt-0.5 line-clamp-1 italic">{link.description}</p>
+        )}
         <div className="flex items-center gap-1 text-on-surface-variant text-sm mt-0.5">
           <ExternalLink className="w-3 h-3 shrink-0" />
           <p className="truncate opacity-60 font-medium">{link.url.replace(/^https?:\/\//, '')}</p>
@@ -74,6 +253,14 @@ export function LinkCard({ link }: { link: LinkItem }) {
       </div>
 
       <div className="flex items-center gap-3">
+        {/* Edit Button */}
+        <button
+          onClick={() => setIsEditing(true)}
+          className="p-2.5 text-on-surface-variant/40 hover:text-primary hover:bg-primary/10 transition-all rounded-xl lg:opacity-0 lg:group-hover:opacity-100"
+        >
+          <Edit2 className="w-4 h-4" />
+        </button>
+
         {/* Toggle Switch */}
         <button
           onClick={handleToggle}

@@ -5,6 +5,10 @@ import { db } from "@/lib/firebase-admin";
 import Stripe from "stripe";
 
 export async function POST(req: Request) {
+  if (!stripe || !process.env.STRIPE_WEBHOOK_SECRET) {
+    return new NextResponse("Stripe is not configured", { status: 503 });
+  }
+
   const body = await req.text();
   const signature = (await headers()).get("Stripe-Signature") as string;
 
@@ -14,7 +18,7 @@ export async function POST(req: Request) {
     event = stripe.webhooks.constructEvent(
       body,
       signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
+      process.env.STRIPE_WEBHOOK_SECRET
     );
   } catch (error: any) {
     return new NextResponse(`Webhook Error: ${error.message}`, { status: 400 });

@@ -14,7 +14,7 @@ import { useEffect } from "react";
 import { EmailAuthForm } from "@/components/auth/EmailAuthForm";
 
 export default function LoginPage() {
-  const { user, loading, signInWithGoogle } = useAuth();
+  const { user, loading, firebaseConfigured, signInWithGoogle } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -24,6 +24,8 @@ export default function LoginPage() {
   }, [user, loading, router]);
 
   const handleGoogleSignIn = async () => {
+    if (!firebaseConfigured) return;
+
     try {
       await signInWithGoogle();
     } catch (error) {
@@ -60,7 +62,8 @@ export default function LoginPage() {
             <div className="grid grid-cols-1 gap-6">
               <button 
                 onClick={handleGoogleSignIn}
-                className="w-full flex items-center justify-center gap-3 py-4 px-4 rounded-xl bg-surface-container-highest hover:bg-surface-bright transition-all duration-200 active:scale-95 group border border-white/5 shadow-sm"
+                disabled={!firebaseConfigured}
+                className="w-full flex items-center justify-center gap-3 py-4 px-4 rounded-xl bg-surface-container-highest hover:bg-surface-bright transition-all duration-200 active:scale-95 group border border-white/5 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Globe className="w-5 h-5 text-[#bfff00]" />
                 <span className="text-sm font-bold uppercase tracking-widest text-[0.7rem]">Continue with Google</span>
@@ -93,7 +96,7 @@ export default function LoginPage() {
           <div className="text-center">
             <p className="text-sm text-on-surface-variant font-medium">
               Don't have an account? 
-              <span className="text-primary font-black ml-2 cursor-pointer hover:underline" onClick={handleGoogleSignIn}>Sign up for free</span>
+              <button className="text-primary font-black ml-2 hover:underline disabled:opacity-50 disabled:cursor-not-allowed" onClick={handleGoogleSignIn} disabled={!firebaseConfigured}>Sign up for free</button>
             </p>
           </div>
         </div>

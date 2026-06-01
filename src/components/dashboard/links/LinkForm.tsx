@@ -3,20 +3,31 @@
 import { useState, useTransition } from "react";
 import { addLink } from "@/app/actions/links";
 import { cn } from "@/lib/utils";
-import { Plus, X, Save } from "lucide-react";
+import { Plus, X, Save, Image as ImageIcon } from "lucide-react";
+import { UploadButton } from "@/lib/uploadthing";
 
-export function LinkForm() {
+export function LinkForm({ userId, onLinkAdded }: { userId?: string; onLinkAdded?: () => void }) {
   const [isPending, startTransition] = useTransition();
   const [isOpen, setIsOpen] = useState(false);
+  const [thumbnailUrl, setThumbnailUrl] = useState("");
+  const [description, setDescription] = useState("");
 
   async function handleSubmit(formData: FormData) {
     const label = formData.get("label") as string;
     const url = formData.get("url") as string;
 
     startTransition(() => {
-      addLink({ label, url }).then((result) => {
+      addLink({ 
+        label, 
+        url, 
+        description, 
+        thumbnailUrl 
+      }, userId).then((result) => {
         if (result.success) {
           setIsOpen(false);
+          setThumbnailUrl("");
+          setDescription("");
+          if (onLinkAdded) onLinkAdded();
         } else {
           alert(result.error);
         }
@@ -40,13 +51,17 @@ export function LinkForm() {
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-surface/80 backdrop-blur-sm animate-in fade-in duration-300">
       <form 
         action={handleSubmit} 
-        className="w-full max-w-lg flex flex-col gap-6 p-8 rounded-[2rem] bg-surface-container shadow-2xl border border-white/5 animate-in zoom-in-95 duration-300"
+        className="w-full max-w-lg flex flex-col gap-6 p-8 rounded-[2rem] bg-surface-container shadow-2xl border border-white/5 animate-in zoom-in-95 duration-300 overflow-y-auto max-h-[90vh]"
       >
         <div className="flex justify-between items-center mb-2">
           <h2 className="text-2xl font-black text-on-surface tracking-tight">New Piece</h2>
           <button 
             type="button" 
-            onClick={() => setIsOpen(false)}
+            onClick={() => {
+              setIsOpen(false);
+              setThumbnailUrl("");
+              setDescription("");
+            }}
             className="p-2 hover:bg-surface-container-highest rounded-full transition-colors text-on-surface-variant"
           >
             <X className="w-6 h-6" />
@@ -75,9 +90,67 @@ export function LinkForm() {
               className="p-4 rounded-xl bg-surface-container-low text-on-surface border-none focus:ring-2 ring-primary transition-all placeholder:opacity-30"
             />
           </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[0.6875rem] font-bold uppercase tracking-widest text-primary ml-1">Description (Optional)</label>
+            <textarea
+              name="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Give details about this project..."
+              rows={2}
+              className="p-4 rounded-xl bg-surface-container-low text-on-surface border-none focus:ring-2 ring-primary transition-all placeholder:opacity-30 resize-none font-sans"
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label className="text-[0.6875rem] font-bold uppercase tracking-widest text-primary ml-1">Thumbnail (Optional)</label>
+            <div className="flex items-center gap-4 p-4 bg-surface-container-low rounded-xl border border-white/5">
+              {thumbnailUrl ? (
+                <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-white/10 shrink-0">
+                  <img src={thumbnailUrl} alt="Thumbnail preview" className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => setThumbnailUrl("")}
+                    className="absolute inset-0 bg-black/60 opacity-0 hover:opacity-100 flex items-center justify-center text-error transition-opacity"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              ) : (
+                <div className="w-16 h-16 rounded-lg bg-surface-container-highest flex items-center justify-center text-on-surface-variant/40 shrink-0 border border-dashed border-white/10">
+                  <ImageIcon className="w-6 h-6" />
+                </div>
+              )}
+              <div className="flex-1 flex flex-col gap-2">
+                <UploadButton
+                  endpoint="avatarUploader"
+                  onClientUploadComplete={(res) => {
+                    if (res && res[0]) {
+                      setThumbnailUrl(res[0].url);
+                    }
+                  }}
+                  onUploadError={(error: Error) => {
+                    alert(`Upload error: ${error.message}\nTip: You can also paste a direct image URL below.`);
+                  }}
+                  className="ut-button:bg-primary ut-button:hover:scale-[1.02] ut-button:active:scale-95 ut-button:transition-transform ut-button:h-9 ut-button:text-xs ut-button:px-4 ut-button:rounded-lg ut-allowed-content:hidden"
+                />
+                <div className="flex flex-col gap-1">
+                  <span className="text-[0.6rem] font-bold text-on-surface-variant/60 text-center">OR</span>
+                  <input
+                    type="url"
+                    placeholder="Paste image URL (e.g. https://...)"
+                    value={thumbnailUrl}
+                    onChange={(e) => setThumbnailUrl(e.target.value)}
+                    className="p-2 text-xs rounded-lg bg-surface-container-low text-on-surface border-none focus:ring-1 ring-primary placeholder:opacity-30"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="flex gap-3 pt-4">
+        <div className="flex gap-3 pt-2">
           <button
             type="submit"
             disabled={isPending}

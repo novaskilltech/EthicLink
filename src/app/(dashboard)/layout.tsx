@@ -5,15 +5,15 @@ import {
   LayoutDashboard, 
   Link2, 
   Palette, 
-  BarChart3, 
   Settings,
   LogOut,
   User as UserIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { getProfile } from "@/app/actions/profile";
 
 export default function DashboardLayout({
   children,
@@ -22,12 +22,32 @@ export default function DashboardLayout({
 }) {
   const { user, loading, signOut } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
+  const [plan, setPlan] = useState("FREE");
 
   useEffect(() => {
     if (!loading && !user) {
       router.push("/login");
     }
   }, [user, loading, router]);
+
+  useEffect(() => {
+    async function loadPlan() {
+      if (user) {
+        try {
+          const profile = await getProfile(user.uid);
+          if (profile && profile.plan) {
+            setPlan(profile.plan);
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+    if (user) {
+      loadPlan();
+    }
+  }, [user]);
 
   if (loading) {
     return (
@@ -50,21 +70,25 @@ export default function DashboardLayout({
             { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
             { label: "Links", href: "/dashboard/links", icon: Link2 },
             { label: "Appearance", href: "/dashboard/appearance", icon: Palette },
-            { label: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
-            { label: "Settings", href: "/dashboard/settings", icon: Settings },
-          ].map((item) => (
-            <Link 
-              key={item.href}
-              href={item.href} 
-              className={cn(
-                "flex items-center gap-3 p-3 rounded-xl transition-all duration-200 group text-sm font-medium",
-                "text-on-surface-variant hover:text-primary hover:bg-surface-container-high"
-              )}
-            >
-              <item.icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              {item.label}
-            </Link>
-          ))}
+            { label: "Profile", href: "/dashboard/profile", icon: Settings },
+          ].map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link 
+                key={item.href}
+                href={item.href} 
+                className={cn(
+                  "flex items-center gap-3 p-3 rounded-xl transition-all duration-200 group text-sm font-medium",
+                  isActive 
+                    ? "text-primary bg-surface-container-high font-bold border border-white/5" 
+                    : "text-on-surface-variant hover:text-primary hover:bg-surface-container-high"
+                )}
+              >
+                <item.icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
         
         <div className="mt-auto pt-6 border-t border-white/5 flex flex-col gap-4">
@@ -78,7 +102,9 @@ export default function DashboardLayout({
             </div>
             <div className="flex flex-col overflow-hidden">
               <span className="text-xs font-bold text-on-surface truncate">{user?.displayName || "Creator"}</span>
-              <span className="text-[0.6rem] text-on-surface-variant uppercase tracking-widest">Free Plan</span>
+              <span className="text-[0.6rem] text-primary-container font-black uppercase tracking-widest">
+                {plan} PLAN
+              </span>
             </div>
           </div>
           <button 

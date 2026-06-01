@@ -1,7 +1,5 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { updateTheme } from "@/app/actions/theme";
 import { ButtonStyle } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Lock } from "lucide-react";
@@ -16,18 +14,18 @@ const BG_COLORS = [
 
 const PREMIUM_STYLES = [ButtonStyle.GHOST, ButtonStyle.SOFT];
 
-export function ThemeSelector({ initialData, plan }: { initialData: any, plan: string }) {
-  const [isPending, startTransition] = useTransition();
-  const [theme, setTheme] = useState(initialData);
+export function ThemeSelector({ 
+  theme, 
+  onChange, 
+  plan 
+}: { 
+  theme: any; 
+  onChange: (update: any) => void; 
+  plan: string; 
+}) {
 
   function handleUpdate(update: any) {
-    const newTheme = { ...theme, ...update };
-    setTheme(newTheme);
-    startTransition(() => {
-      updateTheme(update.theme || theme.theme); 
-      // In a real app, you'd update specific fields. 
-      // Here I'll simplify to match the prompt's request for "adding a theme".
-    });
+    onChange(update);
   }
 
   const THEME_PRESETS = [
@@ -45,10 +43,11 @@ export function ThemeSelector({ initialData, plan }: { initialData: any, plan: s
           {THEME_PRESETS.map((p) => (
             <button
               key={p.id}
+              type="button"
               onClick={() => handleUpdate({ theme: p.id })}
               className={cn(
                 "p-4 rounded-2xl border-2 transition-all flex items-center gap-3",
-                theme.theme === p.id ? "border-primary bg-primary/5 shadow-lg shadow-primary/10" : "border-white/5 bg-surface-container-highest/30"
+                theme?.theme === p.id ? "border-primary bg-primary/5 shadow-lg shadow-primary/10" : "border-white/5 bg-surface-container-highest/30"
               )}
             >
               <div className="w-4 h-4 rounded-full shadow-inner" style={{ backgroundColor: p.color }} />
@@ -64,10 +63,11 @@ export function ThemeSelector({ initialData, plan }: { initialData: any, plan: s
           {THEME_COLORS.map((color) => (
             <button
               key={color}
+              type="button"
               onClick={() => handleUpdate({ themeColor: color })}
               className={cn(
                 "w-10 h-10 rounded-full border-2 transition-all shadow-sm",
-                theme.themeColor === color ? "border-primary scale-110 shadow-lg shadow-primary/20" : "border-transparent"
+                theme?.themeColor === color ? "border-primary scale-110 shadow-lg shadow-primary/20" : "border-transparent"
               )}
               style={{ backgroundColor: color }}
             />
@@ -81,10 +81,11 @@ export function ThemeSelector({ initialData, plan }: { initialData: any, plan: s
           {BG_COLORS.map((color) => (
             <button
               key={color}
+              type="button"
               onClick={() => handleUpdate({ bgColor: color })}
               className={cn(
                 "w-10 h-10 rounded-full border-2 transition-all shadow-sm",
-                theme.bgColor === color ? "border-primary scale-110 shadow-lg shadow-primary/20" : "border-transparent"
+                theme?.bgColor === color ? "border-primary scale-110 shadow-lg shadow-primary/20" : "border-transparent"
               )}
               style={{ backgroundColor: color }}
             />
@@ -100,13 +101,13 @@ export function ThemeSelector({ initialData, plan }: { initialData: any, plan: s
             return (
               <button
                 key={style}
-                disabled={isLocked || isPending}
+                type="button"
+                disabled={isLocked}
                 onClick={() => handleUpdate({ buttonStyle: style })}
                 className={cn(
                   "relative px-4 py-3 border-2 rounded-xl transition-all font-bold text-[0.65rem] uppercase tracking-widest",
-                  theme.buttonStyle === style ? "border-primary bg-primary/5 text-primary" : "border-transparent bg-surface-container-highest text-on-surface-variant",
-                  isLocked && "opacity-40 grayscale cursor-not-allowed",
-                  isPending && "animate-pulse"
+                  theme?.buttonStyle === style ? "border-primary bg-primary/5 text-primary" : "border-transparent bg-surface-container-highest text-on-surface-variant",
+                  isLocked && "opacity-40 grayscale cursor-not-allowed"
                 )}
               >
                 {style}

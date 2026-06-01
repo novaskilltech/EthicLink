@@ -21,7 +21,7 @@ import {
 } from "@dnd-kit/sortable";
 import { reorderLinks } from "@/app/actions/links";
 
-export function LinkList({ initialLinks }: { initialLinks: LinkItem[] }) {
+export function LinkList({ initialLinks, userId, onLinksChanged }: { initialLinks: LinkItem[], userId?: string, onLinksChanged?: () => void }) {
   const [links, setLinks] = useState(initialLinks);
   const [isPending, startTransition] = useTransition();
 
@@ -52,7 +52,9 @@ export function LinkList({ initialLinks }: { initialLinks: LinkItem[] }) {
           id: link.id,
           order: index, // Changed from sortOrder to order to match Firestore action
         }));
-        reorderLinks(updates);
+        reorderLinks(updates).then(() => {
+          if (onLinksChanged) onLinksChanged();
+        });
       });
     }
   }
@@ -81,7 +83,7 @@ export function LinkList({ initialLinks }: { initialLinks: LinkItem[] }) {
       >
         <div className="flex flex-col gap-4">
           {links.map((link) => (
-            <LinkCard key={link.id} link={link} />
+            <LinkCard key={link.id} link={link} userId={userId} onLinksChanged={onLinksChanged} />
           ))}
         </div>
       </SortableContext>

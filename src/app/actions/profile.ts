@@ -12,37 +12,59 @@ export async function getProfile(userId?: string) {
   const id = userId || (await getAuthUser())?.uid;
   if (!id) return null;
 
-  const doc = await db.collection("profiles").doc(id).get();
-  if (!doc.exists) return null;
-  return doc.data() as Profile;
+  try {
+    const doc = await db.collection("profiles").doc(id).get();
+    if (!doc.exists) return null;
+    return doc.data() as Profile;
+  } catch (error) {
+    console.error("getProfile Error:", error);
+    return null;
+  }
 }
 
-export async function updateProfile(data: any) {
+export async function updateProfile(data: any, userId?: string) {
   const user = await getAuthUser();
-  if (!user) throw new Error("Unauthorized");
+  const targetUid = userId || user?.uid;
+  if (!targetUid) throw new Error("Unauthorized");
 
   try {
-    await db.collection("profiles").doc(user.uid).set(data, { merge: true });
+    const updateData = { ...data };
+    if (updateData.avatarUrl !== undefined) {
+      updateData.image = updateData.avatarUrl;
+    } else if (updateData.image !== undefined) {
+      updateData.avatarUrl = updateData.image;
+    }
+
+    await db.collection("profiles").doc(targetUid).set(updateData, { merge: true });
     revalidatePath("/dashboard");
     return { success: true };
   } catch (error) {
+    console.error("updateProfile Error:", error);
     return { error: "Failed to update profile" };
   }
 }
 
 export async function getPublicProfile(slug: string) {
-  const snapshot = await db.collection("profiles").where("slug", "==", slug).limit(1).get();
-  if (snapshot.empty) return null;
-  
-  const profile = snapshot.docs[0].data();
-  const links = await db.collection("links")
-    .where("uid", "==", profile.uid) // We'll need to ensure profile contains uid
-    .where("active", "==", true)
-    .orderBy("order", "asc")
-    .get();
+  try {
+    const snapshot = await db.collection("profiles").where("slug", "==", slug).limit(1).get();
+    if (snapshot.empty) return null;
     
-  return {
-    ...profile,
-    links: links.docs.map(doc => ({ id: doc.id, ...doc.data() }))
-  };
+    const profile = snapshot.docs[0].data();
+    const linksSnapshot = await db.collection("links")
+      .where("uid", "==", profile.uid)
+      .get();
+      
+    const links = linksSnapshot.docs
+      .map((doc: any) => ({ id: doc.id, ...doc.data() }))
+      .filter((link: any) => link.active === true)
+      .sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
+      
+    return {
+      ...profile,
+      links
+    };
+  } catch (error) {
+    console.error("getPublicProfile Error:", error);
+    return null;
+  }
 }

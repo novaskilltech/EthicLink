@@ -78,9 +78,9 @@ export default function BillingPage() {
             </div>
           </div>
           <p className="text-sm font-medium mb-8">For large teams and agencies requiring dedicated support and custom domains.</p>
-          <button disabled className="mt-auto w-full py-4 rounded-xl font-bold bg-surface-container-highest text-on-surface-variant cursor-not-allowed">
+          <a href="mailto:sales@ethiclink.local" className="mt-auto w-full py-4 rounded-xl font-bold bg-surface-container-highest text-on-surface-variant text-center transition-colors hover:bg-surface-bright hover:text-on-surface">
             Contact Sales
-          </button>
+          </a>
         </div>
       </div>
 

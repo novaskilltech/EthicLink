@@ -1,8 +1,8 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { createCheckoutSession } from "@/app/actions/stripe";
-import { Check, Zap } from "lucide-react";
+import { AlertCircle, Check, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface UpgradeCardProps {
@@ -16,10 +16,20 @@ interface UpgradeCardProps {
 
 export function UpgradeCard({ plan, currentPlan, price, features, color, buttonClass }: UpgradeCardProps) {
   const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
 
   const handleUpgrade = () => {
-    startTransition(() => {
-      createCheckoutSession(plan);
+    setError(null);
+
+    startTransition(async () => {
+      const result = await createCheckoutSession(plan);
+
+      if ("url" in result && result.url) {
+        window.location.href = result.url;
+        return;
+      }
+
+      setError(result.error || "Checkout is not available yet.");
     });
   };
 
@@ -64,6 +74,13 @@ export function UpgradeCard({ plan, currentPlan, price, features, color, buttonC
           </>
         )}
       </button>
+
+      {error && (
+        <div className="mt-4 flex items-start gap-2 rounded-xl border border-yellow-400/20 bg-yellow-500/10 p-3 text-xs font-medium text-yellow-100">
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
     </div>
   );
 }

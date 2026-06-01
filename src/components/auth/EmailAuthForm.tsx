@@ -3,10 +3,9 @@
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Mail, Lock, Loader2, AlertCircle } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 export function EmailAuthForm() {
-  const { signInWithEmail, signUpWithEmail } = useAuth();
+  const { firebaseConfigured, signInWithEmail, signUpWithEmail } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -15,6 +14,11 @@ export function EmailAuthForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!firebaseConfigured) {
+      setError("Firebase is not configured yet.");
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -52,6 +56,7 @@ export function EmailAuthForm() {
             <input
               type="email"
               required
+              disabled={!firebaseConfigured}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="curator@ethiclink.bio"
@@ -69,6 +74,7 @@ export function EmailAuthForm() {
             <input
               type="password"
               required
+              disabled={!firebaseConfigured}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
@@ -86,7 +92,7 @@ export function EmailAuthForm() {
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || !firebaseConfigured}
           className="w-full lime-gradient text-black py-4 rounded-xl font-black text-sm uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-[#bfff00]/10 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? (
@@ -100,6 +106,7 @@ export function EmailAuthForm() {
       <div className="text-center">
         <button
           onClick={() => setIsLogin(!isLogin)}
+          disabled={!firebaseConfigured}
           className="text-xs text-on-surface-variant font-medium hover:text-[#bfff00] transition-colors"
         >
           {isLogin ? (

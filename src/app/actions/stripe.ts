@@ -10,6 +10,10 @@ async function getAuthUser() {
 }
 
 export async function createCheckoutSession(priceId: string) {
+  if (!stripe) {
+    return { error: "Stripe is not configured." };
+  }
+
   const user = await getAuthUser();
   if (!user) throw new Error("Unauthorized");
 

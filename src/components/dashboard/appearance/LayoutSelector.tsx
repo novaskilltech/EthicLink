@@ -1,7 +1,5 @@
 "use client";
 
-import { useTransition } from "react";
-import { updateAppearance } from "@/app/actions/appearance";
 import { LayoutPreset, Plan } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Lock } from "lucide-react";
@@ -13,28 +11,30 @@ const LAYOUTS = [
   { id: LayoutPreset.MINIMAL, label: "Minimal", icon: "▫", pro: true },
 ];
 
-export function LayoutSelector({ initialPreset, plan = Plan.FREE }: { initialPreset: LayoutPreset, plan?: Plan }) {
-  const [isPending, startTransition] = useTransition();
-
-  const handleSelect = (preset: LayoutPreset) => {
-    startTransition(() => {
-      updateAppearance({ layoutPreset: preset });
-    });
-  };
-
+export function LayoutSelector({ 
+  activePreset, 
+  onChange,
+  plan = Plan.FREE 
+}: { 
+  activePreset: LayoutPreset; 
+  onChange: (preset: LayoutPreset) => void;
+  plan?: Plan; 
+}) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 bg-surface-container-low border border-white/5 rounded-3xl">
       {LAYOUTS.map((layout) => {
         const isLocked = layout.pro && plan === Plan.FREE;
+        const isActive = activePreset === layout.id;
         
         return (
           <button
             key={layout.id}
-            disabled={isPending || isLocked}
-            onClick={() => handleSelect(layout.id as LayoutPreset)}
+            type="button"
+            disabled={isLocked}
+            onClick={() => onChange(layout.id as LayoutPreset)}
             className={cn(
               "relative flex flex-col items-center gap-3 p-6 rounded-2xl border-2 transition-all group",
-              initialPreset === layout.id 
+              isActive 
                 ? "border-primary bg-primary/5 shadow-lg shadow-primary/10" 
                 : "border-white/5 hover:border-primary/30 bg-white/5 hover:bg-white/10",
               isLocked && "opacity-40 grayscale cursor-not-allowed"
