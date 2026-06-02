@@ -68,3 +68,71 @@ export async function getPublicProfile(slug: string) {
     return null;
   }
 }
+
+export async function getProfileAnalytics(slug: string) {
+  if (!slug) return { views: 0, clicks: 0, ctr: "0.0%", dailyClicks: [0, 0, 0, 0, 0, 0, 0] };
+
+  try {
+    const snapshot = await db.collection("analytics")
+      .where("pageId", "==", slug)
+      .get();
+
+    let views = 0;
+    let clicks = 0;
+
+    const dailyClicks = [0, 0, 0, 0, 0, 0, 0]; // Mon, Tue, Wed, Thu, Fri, Sat, Sun
+    const now = new Date();
+    const last7DaysLimit = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+    snapshot.docs.forEach((doc: any) => {
+      const data = doc.data();
+      if (data.type === "PAGE_VIEW") {
+        views++;
+      } else if (data.type === "LINK_CLICK") {
+        clicks++;
+        if (data.timestamp) {
+          const date = new Date(data.timestamp);
+          if (date >= last7DaysLimit) {
+            const jsDay = date.getDay();
+            const index = jsDay === 0 ? 6 : jsDay - 1;
+            dailyClicks[index] = (dailyClicks[index] || 0) + 1;
+          }
+        }
+      }
+    });
+
+    const ctr = views > 0 ? ((clicks / views) * 100).toFixed(1) + "%" : "0.0%";
+
+    return {
+      views,
+      clicks,
+      ctr,
+      dailyClicks
+    };
+  } catch (error) {
+    console.error("getProfileAnalytics Error:", error);
+    return { views: 0, clicks: 0, ctr: "0.0%", dailyClicks: [0, 0, 0, 0, 0, 0, 0] };
+  }
+}
+
+export async function resetProfileAnalytics(slug: string) {
+  if (!slug) return { success: false, error: "Slug requis" };
+  try {
+    const snapshot = await db.collection("analytics")
+      .where("pageId", "==", slug)
+      .get();
+
+    const batch = db.batch();
+    snapshot.docs.forEach((doc: any) => {
+      batch.delete(doc.ref);
+    });
+
+    await batch.commit();
+    revalidatePath("/dashboard");
+    return { success: true };
+  } catch (error) {
+    console.error("resetProfileAnalytics Error:", error);
+    return { success: false, error: "Failed to reset analytics" };
+  }
+}
+

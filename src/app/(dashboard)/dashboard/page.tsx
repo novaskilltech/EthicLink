@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getLinks } from "@/app/actions/links";
-import { getProfile } from "@/app/actions/profile";
+import { getProfile, getProfileAnalytics, resetProfileAnalytics } from "@/app/actions/profile";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
@@ -26,31 +26,63 @@ export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
   const [profile, setProfile] = useState<any>(null);
   const [links, setLinks] = useState<any[]>([]);
+  const [analytics, setAnalytics] = useState<any>({ views: 0, clicks: 0, ctr: "0.0%", dailyClicks: [0, 0, 0, 0, 0, 0, 0] });
   const [dataLoading, setDataLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    async function fetchData() {
-      if (user) {
-        try {
-          const [profileData, linksData] = await Promise.all([
-            getProfile(user.uid),
-            getLinks(user.uid)
-          ]);
-          setProfile(profileData || {});
-          setLinks(linksData || []);
-        } catch (error) {
-          console.error("Fetch Data Error:", error);
-        } finally {
-          setDataLoading(false);
+  const fetchData = async (showSpinner = false) => {
+    if (!user) return;
+    if (showSpinner) setRefreshing(true);
+    try {
+      const profileData = await getProfile(user.uid);
+      setProfile(profileData || {});
+      
+      if (profileData?.slug) {
+        const [linksData, analyticsData] = await Promise.all([
+          getLinks(user.uid),
+          getProfileAnalytics(profileData.slug)
+        ]);
+        setLinks(linksData || []);
+        setAnalytics(analyticsData || { views: 0, clicks: 0, ctr: "0.0%", dailyClicks: [0, 0, 0, 0, 0, 0, 0] });
+      } else {
+        const linksData = await getLinks(user.uid);
+        setLinks(linksData || []);
+      }
+    } catch (error) {
+      console.error("Fetch Data Error:", error);
+    } finally {
+      setDataLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  const handleResetStats = async () => {
+    if (!profile?.slug) return;
+    if (confirm("Êtes-vous sûr de vouloir réinitialiser toutes vos statistiques ? Cette action est irréversible.")) {
+      setRefreshing(true);
+      try {
+        const res = await resetProfileAnalytics(profile.slug);
+        if (res.success) {
+          setAnalytics({ views: 0, clicks: 0, ctr: "0.0%", dailyClicks: [0, 0, 0, 0, 0, 0, 0] });
+          alert("Statistiques réinitialisées avec succès !");
+        } else {
+          alert("Erreur lors de la réinitialisation.");
         }
+      } catch (err) {
+        console.error(err);
+        alert("Erreur lors de la réinitialisation.");
+      } finally {
+        setRefreshing(false);
       }
     }
+  };
 
+  useEffect(() => {
     if (!authLoading && user) {
       fetchData();
     } else if (!authLoading && !user) {
        setDataLoading(false);
-    }
+     }
   }, [user, authLoading]);
 
   if (authLoading || dataLoading) {
@@ -61,11 +93,10 @@ export default function DashboardPage() {
     );
   }
 
-  // Mock stats for now as Analytics is P2
   const stats = [
-    { label: "Total Views", value: "0", icon: Eye, color: "text-primary" },
-    { label: "Total Clicks", value: "0", icon: MousePointer2, color: "text-secondary" },
-    { label: "Avg. CTR", value: "0%", icon: TrendingUp, color: "text-tertiary" },
+    { label: "Total Views", value: analytics.views.toString(), icon: Eye, color: "text-primary" },
+    { label: "Total Clicks", value: analytics.clicks.toString(), icon: MousePointer2, color: "text-secondary" },
+    { label: "Avg. CTR", value: analytics.ctr, icon: TrendingUp, color: "text-tertiary" },
   ];
 
   return (
@@ -108,24 +139,49 @@ export default function DashboardPage() {
 
           {/* Chart Section */}
           <div className="bg-surface-container p-8 rounded-2xl border border-white/5">
-            <div className="flex justify-between items-start mb-10">
+            <div className="flex justify-between items-center mb-10">
               <div>
                 <h4 className="text-xl font-bold text-on-surface">Engagement Trends</h4>
-                <p className="text-on-surface-variant text-sm mt-1 opacity-60">Activity across all curated links over the last 30 days.</p>
+                <p className="text-on-surface-variant text-sm mt-1 opacity-60">Activity across all curated links over the last 7 days.</p>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={handleResetStats}
+                  disabled={refreshing}
+                  className="p-3 bg-red-500/10 text-red-400 hover:bg-red-500/20 rounded-xl border border-red-500/20 transition-all text-xs font-bold active:scale-95 disabled:opacity-50"
+                >
+                  Réinitialiser
+                </button>
+                <button
+                  onClick={() => fetchData(true)}
+                  disabled={refreshing}
+                  className="p-3 bg-surface-container-highest text-on-surface hover:text-primary rounded-xl border border-white/5 transition-all flex items-center gap-2 text-xs font-bold active:scale-95 disabled:opacity-50"
+                >
+                  <RefreshCw className={cn("w-4 h-4", refreshing && "animate-spin")} />
+                  Rafraîchir
+                </button>
               </div>
             </div>
             
             <div className="h-64 flex items-end gap-3 px-4">
-              {[10, 15, 10, 20, 15, 25, 20].map((height, i) => (
-                <div 
-                  key={i} 
-                  className={cn(
-                    "flex-1 rounded-t-xl transition-all duration-500 hover:scale-x-105",
-                    i === 5 ? "primary-gradient shadow-lg shadow-primary/20" : "bg-surface-container-highest hover:bg-surface-bright"
-                  )}
-                  style={{ height: `${height}%` }}
-                />
-              ))}
+              {analytics.dailyClicks.map((clicksVal: number, i: number) => {
+                const maxVal = Math.max(...analytics.dailyClicks, 1);
+                const heightPercent = Math.max(5, (clicksVal / maxVal) * 100);
+                return (
+                  <div 
+                    key={i} 
+                    className={cn(
+                      "flex-1 rounded-t-xl transition-all duration-500 hover:scale-x-105 relative group/bar cursor-pointer",
+                      i === 5 ? "primary-gradient shadow-lg shadow-primary/20" : "bg-surface-container-highest hover:bg-surface-bright"
+                    )}
+                    style={{ height: `${heightPercent}%` }}
+                  >
+                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-black text-white text-[0.6rem] px-2 py-1 rounded opacity-0 group-hover/bar:opacity-100 transition-opacity font-bold pointer-events-none whitespace-nowrap">
+                      {clicksVal} clic{clicksVal > 1 ? 's' : ''}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
             <div className="flex justify-between mt-6 text-[0.65rem] text-on-surface-variant font-bold px-4 tracking-widest opacity-40">
               {["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"].map(day => <span key={day}>{day}</span>)}
@@ -163,26 +219,25 @@ export default function DashboardPage() {
         {/* Right Column: Mobile Preview */}
         <div className="col-span-12 lg:col-span-4 flex flex-col items-center">
           <div className="sticky top-8 w-full max-w-[320px]">
-             {/* Preview Mockup simplified for MVP dashboard */}
-            <div className="bg-surface-container-lowest p-3 rounded-[3rem] border-[10px] border-surface-container aspect-[9/19] relative overflow-hidden shadow-2xl flex flex-col">
-              <div className="bg-surface flex-1 rounded-[2.2rem] overflow-hidden flex flex-col items-center p-6 space-y-6">
-                 <div className="w-16 h-16 rounded-full primary-gradient flex items-center justify-center text-white text-xl font-black mt-4">
-                   {(profile?.displayName?.[0] || user?.displayName?.[0] || "E").toUpperCase()}
-                 </div>
-                 <div className="text-center space-y-2">
-                   <h6 className="font-black text-on-surface text-sm">{profile?.displayName || user?.displayName || "EthicUser"}</h6>
-                   <p className="text-[0.6rem] text-on-surface-variant uppercase tracking-widest font-bold opacity-60">@{profile?.slug || "username"}</p>
-                 </div>
-                 <div className="w-full space-y-2">
-                   {links.slice(0, 3).map((l: any) => (
-                     <div key={l.id} className="w-full p-3 rounded-lg bg-surface-container-highest border border-white/5 text-[0.6rem] font-bold text-center">
-                       {l.label}
-                     </div>
-                   ))}
-                 </div>
+            {profile?.slug ? (
+              <div className="w-[320px] h-[640px] rounded-[3rem] border-8 border-slate-900 bg-black shadow-2xl relative overflow-hidden flex items-center justify-center">
+                {/* Speaker notch */}
+                <div className="absolute top-2 w-28 h-5 bg-slate-900 rounded-full z-50 flex items-center justify-center">
+                  <div className="w-8 h-1 bg-white/20 rounded-full" />
+                </div>
+                <iframe
+                  id="live-profile-preview"
+                  src={`/${profile.slug}`}
+                  className="w-full h-full border-none z-10"
+                  title="Live public profile preview"
+                />
               </div>
-            </div>
-            <p className="text-center mt-6 text-on-surface-variant text-[0.65rem] uppercase tracking-widest font-black opacity-40">Live Preview</p>
+            ) : (
+              <div className="bg-surface-container-lowest p-6 rounded-[3rem] border-[10px] border-surface-container aspect-[9/19] relative overflow-hidden shadow-2xl flex flex-col items-center justify-center h-[540px]">
+                <p className="text-xs text-on-surface-variant opacity-60 text-center">Créez un pseudo pour activer l'aperçu en direct</p>
+              </div>
+            )}
+            <p className="text-center mt-6 text-on-surface-variant text-[0.65rem] uppercase tracking-widest font-black opacity-40">Prévisualisation en direct</p>
           </div>
         </div>
       </div>

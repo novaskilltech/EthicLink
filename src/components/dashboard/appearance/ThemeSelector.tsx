@@ -9,7 +9,15 @@ const THEME_COLORS = [
 ];
 
 const BG_COLORS = [
-  "#ffffff", "#f8fafc", "#f1f5f9", "#fff7ed", "#fdf2f8", "#0f172a"
+  "#ffffff", // White
+  "#f8fafc", // Light Slate
+  "#fff7ed", // Light Amber
+  "#0f172a", // Dark Slate Blue
+  "#0b0f19", // Deep Space Blue
+  "#022c22", // Emerald Dark
+  "#1e1b4b", // Indigo Dark
+  "#311042", // Purple/Obsidian Dark
+  "SPACE_STARRED" // Custom Starred Space image
 ];
 
 const PREMIUM_STYLES = [ButtonStyle.GHOST, ButtonStyle.SOFT];
@@ -78,18 +86,31 @@ export function ThemeSelector({
       <div className="flex flex-col gap-4">
         <h3 className="text-xl font-bold text-on-surface leading-none tracking-tight">Background</h3>
         <div className="flex flex-wrap gap-3">
-          {BG_COLORS.map((color) => (
-            <button
-              key={color}
-              type="button"
-              onClick={() => handleUpdate({ bgColor: color })}
-              className={cn(
-                "w-10 h-10 rounded-full border-2 transition-all shadow-sm",
-                theme?.bgColor === color ? "border-primary scale-110 shadow-lg shadow-primary/20" : "border-transparent"
-              )}
-              style={{ backgroundColor: color }}
-            />
-          ))}
+          {BG_COLORS.map((color) => {
+            const isStarredSpace = color === "SPACE_STARRED";
+            return (
+              <button
+                key={color}
+                type="button"
+                onClick={() => handleUpdate({ bgColor: color })}
+                className={cn(
+                  "w-10 h-10 rounded-full border-2 transition-all shadow-sm relative overflow-hidden flex items-center justify-center",
+                  theme?.bgColor === color ? "border-primary scale-110 shadow-lg shadow-primary/20" : "border-transparent"
+                )}
+                style={isStarredSpace ? {
+                  backgroundImage: `url("/images/milky_way_bg.png")`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center"
+                } : { 
+                  backgroundColor: color 
+                }}
+              >
+                {isStarredSpace && (
+                  <span className="text-[0.5rem] font-bold text-white uppercase drop-shadow-md select-none">3D</span>
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
 

@@ -9,6 +9,8 @@ const LAYOUTS = [
   { id: LayoutPreset.BENTO_GRID, label: "Bento", icon: "⊞", pro: false },
   { id: LayoutPreset.CAROUSEL, label: "Carousel", icon: "↔", pro: true },
   { id: LayoutPreset.MINIMAL, label: "Minimal", icon: "▫", pro: true },
+  { id: LayoutPreset.ORBIT, label: "Orbit", icon: "⚛", pro: true },
+  { id: LayoutPreset.CAROUSEL_CYLINDER, label: "Cylindre", icon: "◎", pro: true },
 ];
 
 export function LayoutSelector({ 
@@ -21,7 +23,7 @@ export function LayoutSelector({
   plan?: Plan; 
 }) {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 bg-surface-container-low border border-white/5 rounded-3xl">
+    <div className="grid grid-cols-2 md:grid-cols-5 gap-4 p-6 bg-surface-container-low border border-white/5 rounded-3xl">
       {LAYOUTS.map((layout) => {
         const isLocked = layout.pro && plan === Plan.FREE;
         const isActive = activePreset === layout.id;

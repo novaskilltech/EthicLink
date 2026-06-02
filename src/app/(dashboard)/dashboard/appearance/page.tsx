@@ -22,6 +22,9 @@ export default function AppearancePage() {
   const [fetching, setFetching] = useState(true);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
+  // Get slug to display preview
+  const [profileSlug, setProfileSlug] = useState<string>("");
+
   useEffect(() => {
     async function loadData() {
       if (user) {
@@ -31,13 +34,18 @@ export default function AppearancePage() {
             getProfile(user.uid)
           ]);
           setCurrentPreset(preset);
-          setThemeData(profileData || {
-            theme: "INDIGO_ETHEREAL",
-            themeColor: "#8083ff",
-            bgColor: "#ffffff",
-            buttonStyle: "ROUNDED",
-            plan: "FREE"
-          });
+          if (profileData) {
+            setProfileSlug(profileData.slug || "");
+            setThemeData(profileData);
+          } else {
+            setThemeData({
+              theme: "INDIGO_ETHEREAL",
+              themeColor: "#8083ff",
+              bgColor: "#ffffff",
+              buttonStyle: "ROUNDED",
+              plan: "FREE"
+            });
+          }
         } catch (e) {
           console.error(e);
         } finally {
@@ -63,6 +71,11 @@ export default function AppearancePage() {
 
         if (resAppearance.success && resTheme.success) {
           setSaveSuccess(true);
+          // Reload iframe preview to match newly saved database state
+          const iframe = document.getElementById("live-profile-preview") as HTMLIFrameElement;
+          if (iframe) {
+            iframe.src = iframe.src;
+          }
           setTimeout(() => setSaveSuccess(false), 3000);
         } else {
           alert(`Erreur lors de la sauvegarde : ${resAppearance.error || resTheme.error}`);
@@ -90,72 +103,97 @@ export default function AppearancePage() {
   }
 
   return (
-    <div className="flex flex-col gap-10 p-10 max-w-4xl mx-auto pb-32">
-      <header>
-        <h1 className="text-4xl font-extrabold tracking-tight text-on-surface">Apparence</h1>
-        <p className="text-on-surface-variant mt-2 text-lg">Personnalisez la façon dont le monde voit votre identité numérique.</p>
-      </header>
+    <div className="flex flex-col lg:flex-row gap-10 p-6 lg:p-10 max-w-7xl mx-auto pb-32">
+      {/* Configuration Column */}
+      <div className="flex-1 flex flex-col gap-10">
+        <header>
+          <h1 className="text-4xl font-extrabold tracking-tight text-on-surface">Apparence</h1>
+          <p className="text-on-surface-variant mt-2 text-lg">Personnalisez la façon dont le monde voit votre identité numérique.</p>
+        </header>
 
-      {/* Success Notification */}
-      {saveSuccess && (
-        <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl flex items-center gap-3 animate-in fade-in duration-300">
-          <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold text-sm shrink-0">✓</div>
-          <div>
-            <p className="font-bold text-sm">Modifications enregistrées !</p>
-            <p className="text-xs opacity-85">Votre profil public EthicLink a été mis à jour instantanément.</p>
+        {/* Success Notification */}
+        {saveSuccess && (
+          <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl flex items-center gap-3 animate-in fade-in duration-300">
+            <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold text-sm shrink-0">✓</div>
+            <div>
+              <p className="font-bold text-sm">Modifications enregistrées !</p>
+              <p className="text-xs opacity-85">Votre profil public EthicLink a été mis à jour instantanément.</p>
+            </div>
+          </div>
+        )}
+
+        <form onSubmit={handleSave} className="flex flex-col gap-10">
+          <section className="flex flex-col gap-6">
+            <h2 className="text-2xl font-bold text-on-surface">Dispositions de la page</h2>
+            <LayoutSelector 
+              activePreset={currentPreset} 
+              onChange={setCurrentPreset} 
+              plan={themeData?.plan} 
+            />
+          </section>
+
+          {themeData && (
+            <section className="flex flex-col gap-6">
+              <h2 className="text-2xl font-bold text-on-surface">Thème et Styles</h2>
+              <ThemeSelector 
+                theme={themeData} 
+                onChange={(update) => setThemeData({ ...themeData, ...update })} 
+                plan={themeData.plan || "FREE"} 
+              />
+            </section>
+          )}
+
+          {/* Action Button */}
+          <div className="flex justify-start">
+            <button
+              type="submit"
+              disabled={isPending}
+              className={cn(
+                "px-8 py-4 text-sm font-bold rounded-2xl shadow-xl flex items-center gap-2 hover:scale-[1.03] transition-all duration-200 active:scale-95 disabled:opacity-50 cursor-pointer border border-white/5",
+                saveSuccess 
+                  ? "bg-emerald-500 text-white shadow-emerald-500/20" 
+                  : "primary-gradient text-on-primary shadow-primary/20"
+              )}
+            >
+              {isPending ? (
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              ) : saveSuccess ? (
+                <>
+                  <Check className="w-5 h-5" />
+                  Enregistré
+                </>
+              ) : (
+                <>
+                  <Save className="w-5 h-5" />
+                  Enregistrer les modifications
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* Live Preview Column (Sticky phone mock) */}
+      {profileSlug && (
+        <div className="hidden lg:block w-[360px] shrink-0">
+          <div className="sticky top-6 flex flex-col items-center">
+            <span className="text-[0.65rem] font-bold uppercase tracking-widest text-on-surface-variant/50 mb-3">Prévisualisation en direct</span>
+            {/* Phone Frame wrapper */}
+            <div className="w-[320px] h-[640px] rounded-[3rem] border-8 border-slate-900 bg-black shadow-2xl relative overflow-hidden flex items-center justify-center">
+              {/* Speaker notch */}
+              <div className="absolute top-2 w-28 h-5 bg-slate-900 rounded-full z-50 flex items-center justify-center">
+                <div className="w-8 h-1 bg-white/20 rounded-full" />
+              </div>
+              <iframe
+                id="live-profile-preview"
+                src={`/${profileSlug}`}
+                className="w-full h-full border-none z-10"
+                title="Live public profile preview"
+              />
+            </div>
           </div>
         </div>
       )}
-
-      <form onSubmit={handleSave} className="flex flex-col gap-10">
-        <section className="flex flex-col gap-6">
-          <h2 className="text-2xl font-bold text-on-surface">Dispositions de la page</h2>
-          <LayoutSelector 
-            activePreset={currentPreset} 
-            onChange={setCurrentPreset} 
-            plan={themeData?.plan} 
-          />
-        </section>
-
-        {themeData && (
-          <section className="flex flex-col gap-6">
-            <h2 className="text-2xl font-bold text-on-surface">Thème et Styles</h2>
-            <ThemeSelector 
-              theme={themeData} 
-              onChange={(update) => setThemeData({ ...themeData, ...update })} 
-              plan={themeData.plan || "FREE"} 
-            />
-          </section>
-        )}
-
-        {/* Action Button */}
-        <div className="fixed bottom-6 right-6 lg:right-12 z-50 animate-in slide-in-from-bottom duration-300">
-          <button
-            type="submit"
-            disabled={isPending}
-            className={cn(
-              "px-8 py-4 text-sm font-bold rounded-2xl shadow-xl flex items-center gap-2 hover:scale-[1.03] transition-all duration-200 active:scale-95 disabled:opacity-50 cursor-pointer border border-white/5",
-              saveSuccess 
-                ? "bg-emerald-500 text-white shadow-emerald-500/20" 
-                : "primary-gradient text-on-primary shadow-primary/20"
-            )}
-          >
-            {isPending ? (
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-            ) : saveSuccess ? (
-              <>
-                <Check className="w-5 h-5" />
-                Enregistré
-              </>
-            ) : (
-              <>
-                <Save className="w-5 h-5" />
-                Enregistrer les modifications
-              </>
-            )}
-          </button>
-        </div>
-      </form>
     </div>
   );
 }

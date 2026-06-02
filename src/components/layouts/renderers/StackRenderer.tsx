@@ -2,12 +2,13 @@ import type { LinkItem, Profile } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { TrackedLink } from "../../public/TrackedLink";
 import { ArrowRight } from "lucide-react";
+import { SocialLinks } from "../../public/SocialLinks";
 
 export function StackRenderer({ links, profile }: { links: LinkItem[], profile: Profile }) {
   const activeLinks = links.filter(l => l.active).sort((a,b) => (a.order || 0) - (b.order || 0));
 
   // Determine light theme status
-  const isLightTheme = profile.theme === "LIGHT_GLASS" || (profile.bgColor && ["#ffffff", "#f8fafc", "#f1f5f9", "#fff7ed", "#fdf2f8"].includes(profile.bgColor.toLowerCase()));
+  const isLightTheme = !!(profile.theme === "LIGHT_GLASS" || (profile.bgColor && ["#ffffff", "#f8fafc", "#f1f5f9", "#fff7ed", "#fdf2f8"].includes(profile.bgColor.toLowerCase())));
 
   // Resolve button shapes
   const getButtonShapeClass = (style?: string) => {
@@ -50,12 +51,19 @@ export function StackRenderer({ links, profile }: { links: LinkItem[], profile: 
               </div>
             )}
           </div>
-          <h1 className={cn("text-2xl font-black mb-2", isLightTheme ? "text-slate-900" : "text-on-surface")}>
+          <h1 className={cn("text-2xl font-black mb-1", isLightTheme ? "text-slate-900" : "text-on-surface")}>
             {profile.displayName}
           </h1>
-          <p className={cn("text-sm max-w-sm mx-auto font-medium", isLightTheme ? "text-slate-600" : "text-on-surface-variant")}>
-            {profile.bio}
+          <p className="text-xs opacity-60 mb-2 font-semibold">
+            @{profile.slug}
           </p>
+          <SocialLinks profile={profile} isLightTheme={isLightTheme} />
+          
+          {profile.bio && (
+            <p className={cn("text-sm max-w-sm mx-auto font-medium mt-4", isLightTheme ? "text-slate-600" : "text-on-surface-variant")}>
+              {profile.bio}
+            </p>
+          )}
         </header>
 
         {/* Links List */}

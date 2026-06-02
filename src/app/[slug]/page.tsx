@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { PublicPageRenderer } from "@/components/layouts/PublicPageRenderer";
 import { getPublicProfile } from "@/app/actions/profile";
+import { trackPageView } from "@/lib/analytics";
 
 export default async function PublicProfilePage({
   params,
@@ -17,7 +18,8 @@ export default async function PublicProfilePage({
     notFound();
   }
 
-  // Analytics tracking moved to Firestore in Phase 4b
-  // For now we just pass the data to the renderer
+  // Track page view asynchronously (do not block render)
+  trackPageView(slug).catch(err => console.error("trackPageView error:", err));
+
   return <PublicPageRenderer profile={data} page={data} />;
 }

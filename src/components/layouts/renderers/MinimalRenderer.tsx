@@ -2,12 +2,13 @@ import type { LinkItem, Profile } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { TrackedLink } from "../../public/TrackedLink";
 import { ArrowUpRight } from "lucide-react";
+import { SocialLinks } from "../../public/SocialLinks";
 
 export function MinimalRenderer({ links, profile }: { links: LinkItem[], profile: Profile }) {
   const activeLinks = links.filter(l => l.active).sort((a,b) => (a.order || 0) - (b.order || 0));
 
   // Determine light theme status
-  const isLightTheme = profile.theme === "LIGHT_GLASS" || (profile.bgColor && ["#ffffff", "#f8fafc", "#f1f5f9", "#fff7ed", "#fdf2f8"].includes(profile.bgColor.toLowerCase()));
+  const isLightTheme = !!(profile.theme === "LIGHT_GLASS" || (profile.bgColor && ["#ffffff", "#f8fafc", "#f1f5f9", "#fff7ed", "#fdf2f8"].includes(profile.bgColor.toLowerCase())));
   const accentColor = profile.themeColor || (profile.theme === "MIDNIGHT_LIME" ? "#bfff00" : "#8083ff");
 
   // Determine font classes based on profile settings if any, otherwise elegant serif/sans mix
@@ -41,6 +42,9 @@ export function MinimalRenderer({ links, profile }: { links: LinkItem[], profile
               <p className={cn("text-xs opacity-60 font-medium")}>
                 @{profile.slug}
               </p>
+              <div className="flex justify-start pt-1">
+                <SocialLinks profile={profile} isLightTheme={isLightTheme} />
+              </div>
             </div>
           </div>
           

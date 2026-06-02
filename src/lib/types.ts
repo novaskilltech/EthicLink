@@ -2,7 +2,9 @@ export enum LayoutPreset {
   STACK_VERTICAL = "STACK_VERTICAL",
   BENTO_GRID = "BENTO_GRID",
   CAROUSEL = "CAROUSEL",
-  MINIMAL = "MINIMAL"
+  MINIMAL = "MINIMAL",
+  ORBIT = "ORBIT",
+  CAROUSEL_CYLINDER = "CAROUSEL_CYLINDER"
 }
 
 export enum ThemeType {
@@ -50,6 +52,13 @@ export interface Profile {
   plan?: Plan;
   stripeId?: string;
   subscription?: string;
+  youtubeUrl?: string;
+  tiktokUrl?: string;
+  instagramUrl?: string;
+  facebookUrl?: string;
+  whatsappUrl?: string;
+  linkedinUrl?: string;
+  isSuspended?: boolean;
 }
 
 // Alias to keep compatibility with some older parts

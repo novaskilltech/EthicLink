@@ -1,6 +1,7 @@
 import type { LinkItem, Profile } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { TrackedLink } from "../../public/TrackedLink";
+import { SocialLinks } from "../../public/SocialLinks";
 import { 
   ArrowRight, 
   Mail, 
@@ -23,7 +24,7 @@ export function BentoRenderer({ links, profile }: { links: LinkItem[], profile: 
   ];
 
   // Determine light theme status
-  const isLightTheme = profile.theme === "LIGHT_GLASS" || (profile.bgColor && ["#ffffff", "#f8fafc", "#f1f5f9", "#fff7ed", "#fdf2f8"].includes(profile.bgColor.toLowerCase()));
+  const isLightTheme = !!(profile.theme === "LIGHT_GLASS" || (profile.bgColor && ["#ffffff", "#f8fafc", "#f1f5f9", "#fff7ed", "#fdf2f8"].includes(profile.bgColor.toLowerCase())));
 
   // Resolve accent color
   const accentColor = profile.themeColor || (profile.theme === "MIDNIGHT_LIME" ? "#bfff00" : "#8083ff");
@@ -87,6 +88,12 @@ export function BentoRenderer({ links, profile }: { links: LinkItem[], profile: 
               <h1 className={cn("text-4xl md:text-6xl font-black tracking-tighter", isLightTheme ? "text-slate-900" : "text-on-surface")}>
                 {profile.displayName}
               </h1>
+              <p className={cn("text-xs opacity-60 font-semibold md:text-left", isLightTheme ? "text-slate-600" : "text-on-surface-variant")}>
+                @{profile.slug}
+              </p>
+              <div className="flex items-center justify-center md:justify-start gap-4 pt-1">
+                <SocialLinks profile={profile} isLightTheme={isLightTheme} />
+              </div>
             </div>
             <p className={cn("max-w-md leading-relaxed font-normal", isLightTheme ? "text-slate-700" : "text-on-surface-variant")}>
               {profile.bio || "Curating high-end digital experiences at the intersection of editorial design and functional technology."}
@@ -147,9 +154,16 @@ export function BentoRenderer({ links, profile }: { links: LinkItem[], profile: 
                 )}
               >
                 {(isFeatured || link.thumbnailUrl) && (
-                  <div className="absolute inset-0 opacity-25 group-hover:opacity-35 transition-opacity z-0">
+                  <div 
+                    className={cn(
+                      "absolute inset-0 transition-opacity z-0",
+                      link.thumbnailUrl 
+                        ? "opacity-75 group-hover:opacity-90" 
+                        : "opacity-25 group-hover:opacity-35"
+                    )}
+                  >
                     <img src={link.thumbnailUrl || fallbackImages[i % fallbackImages.length]} className="w-full h-full object-cover" alt="" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
                   </div>
                 )}
 
@@ -192,7 +206,12 @@ export function BentoRenderer({ links, profile }: { links: LinkItem[], profile: 
                           {link.label}
                         </h3>
                         {!isFeatured && link.description && (
-                          <p className={cn("text-xs mt-1 text-left", isLightTheme ? "text-slate-500" : "text-on-surface-variant/80")}>{link.description}</p>
+                          <p className={cn(
+                            "text-[0.7rem] mt-1 text-left opacity-0 max-h-0 group-hover:opacity-100 group-hover:max-h-20 transition-all duration-300 overflow-hidden", 
+                            isLightTheme ? "text-slate-500" : "text-on-surface-variant/80"
+                          )}>
+                            {link.description}
+                          </p>
                         )}
                       </div>
                       
