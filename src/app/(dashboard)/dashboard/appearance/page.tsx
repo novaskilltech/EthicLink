@@ -103,7 +103,7 @@ export default function AppearancePage() {
   }
 
   return (
-    <div className="flex flex-col lg:flex-row gap-10 p-6 lg:p-10 max-w-7xl mx-auto pb-32">
+    <div className="p-6 lg:p-10 max-w-4xl pb-32">
       {/* Configuration Column */}
       <div className="flex-1 flex flex-col gap-10">
         <header>
@@ -172,28 +172,6 @@ export default function AppearancePage() {
           </div>
         </form>
       </div>
-
-      {/* Live Preview Column (Sticky phone mock) */}
-      {profileSlug && (
-        <div className="hidden lg:block w-[360px] shrink-0">
-          <div className="sticky top-6 flex flex-col items-center">
-            <span className="text-[0.65rem] font-bold uppercase tracking-widest text-on-surface-variant/50 mb-3">Prévisualisation en direct</span>
-            {/* Phone Frame wrapper */}
-            <div className="w-[320px] h-[640px] rounded-[3rem] border-8 border-slate-900 bg-black shadow-2xl relative overflow-hidden flex items-center justify-center">
-              {/* Speaker notch */}
-              <div className="absolute top-2 w-28 h-5 bg-slate-900 rounded-full z-50 flex items-center justify-center">
-                <div className="w-8 h-1 bg-white/20 rounded-full" />
-              </div>
-              <iframe
-                id="live-profile-preview"
-                src={`/${profileSlug}`}
-                className="w-full h-full border-none z-10"
-                title="Live public profile preview"
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -121,9 +121,9 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <div className="grid grid-cols-12 gap-8">
-        {/* Left Column: Stats & Chart */}
-        <div className="col-span-12 lg:col-span-8 space-y-8">
+      <div className="space-y-8">
+        {/* Main stats & chart contents */}
+        <div className="space-y-8">
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {stats.map((stat) => (
@@ -213,31 +213,6 @@ export default function DashboardPage() {
                 ))
               )}
             </div>
-          </div>
-        </div>
-
-        {/* Right Column: Mobile Preview */}
-        <div className="col-span-12 lg:col-span-4 flex flex-col items-center">
-          <div className="sticky top-8 w-full max-w-[320px]">
-            {profile?.slug ? (
-              <div className="w-[320px] h-[640px] rounded-[3rem] border-8 border-slate-900 bg-black shadow-2xl relative overflow-hidden flex items-center justify-center">
-                {/* Speaker notch */}
-                <div className="absolute top-2 w-28 h-5 bg-slate-900 rounded-full z-50 flex items-center justify-center">
-                  <div className="w-8 h-1 bg-white/20 rounded-full" />
-                </div>
-                <iframe
-                  id="live-profile-preview"
-                  src={`/${profile.slug}`}
-                  className="w-full h-full border-none z-10"
-                  title="Live public profile preview"
-                />
-              </div>
-            ) : (
-              <div className="bg-surface-container-lowest p-6 rounded-[3rem] border-[10px] border-surface-container aspect-[9/19] relative overflow-hidden shadow-2xl flex flex-col items-center justify-center h-[540px]">
-                <p className="text-xs text-on-surface-variant opacity-60 text-center">Créez un pseudo pour activer l'aperçu en direct</p>
-              </div>
-            )}
-            <p className="text-center mt-6 text-on-surface-variant text-[0.65rem] uppercase tracking-widest font-black opacity-40">Prévisualisation en direct</p>
           </div>
         </div>
       </div>

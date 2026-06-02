@@ -24,6 +24,7 @@ export default function DashboardLayout({
   const router = useRouter();
   const pathname = usePathname();
   const [plan, setPlan] = useState("FREE");
+  const [profileSlug, setProfileSlug] = useState("");
 
   useEffect(() => {
     if (!loading && !user) {
@@ -32,12 +33,17 @@ export default function DashboardLayout({
   }, [user, loading, router]);
 
   useEffect(() => {
-    async function loadPlan() {
+    async function loadProfileData() {
       if (user) {
         try {
           const profile = await getProfile(user.uid);
-          if (profile && profile.plan) {
-            setPlan(profile.plan);
+          if (profile) {
+            if (profile.plan) {
+              setPlan(profile.plan);
+            }
+            if (profile.slug) {
+              setProfileSlug(profile.slug);
+            }
           }
         } catch (e) {
           console.error(e);
@@ -45,7 +51,7 @@ export default function DashboardLayout({
       }
     }
     if (user) {
-      loadPlan();
+      loadProfileData();
     }
   }, [user]);
 
@@ -119,8 +125,34 @@ export default function DashboardLayout({
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto bg-surface-container-low p-8">
-        <div className="max-w-6xl mx-auto">
-          {children}
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-10">
+          <div className="flex-1 min-w-0">
+            {children}
+          </div>
+          
+          {/* Live Preview Column (Sticky phone mock) */}
+          {profileSlug && (
+            <div className="hidden lg:block w-[320px] shrink-0">
+              <div className="sticky top-6 flex flex-col items-center">
+                <span className="text-[0.65rem] font-bold uppercase tracking-widest text-on-surface-variant/50 mb-3">
+                  Prévisualisation en direct
+                </span>
+                {/* Phone Frame wrapper */}
+                <div className="w-[320px] h-[640px] rounded-[3rem] border-8 border-slate-900 bg-black shadow-2xl relative overflow-hidden flex items-center justify-center">
+                  {/* Speaker notch */}
+                  <div className="absolute top-2 w-28 h-5 bg-slate-900 rounded-full z-50 flex items-center justify-center">
+                    <div className="w-8 h-1 bg-white/20 rounded-full" />
+                  </div>
+                  <iframe
+                    id="live-profile-preview"
+                    src={`/${profileSlug}`}
+                    className="w-full h-full border-none z-10"
+                    title="Live public profile preview"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </main>
     </div>
