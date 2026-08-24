@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { updateProfile } from "@/app/actions/profile";
-import { UploadButton } from "@/lib/uploadthing";
+import { DirectImageUploader } from "@/components/ui/DirectImageUploader";
 import { useAuth } from "@/context/AuthContext";
 import { CheckCircle, AlertCircle } from "lucide-react";
 
@@ -100,22 +100,12 @@ export function ProfileForm({ initialData }: { initialData: any }) {
 
       <div className="flex flex-col gap-3">
         <label className="text-[0.65rem] font-black uppercase tracking-widest text-on-surface-variant opacity-60">Avatar (Photo de profil)</label>
-        <div className="flex items-center gap-6 p-6 bg-surface-container-lowest rounded-2xl border border-white/5 border-dashed">
-          {formData.avatarUrl && (
-            <img src={formData.avatarUrl} alt="Avatar" className="w-16 h-16 rounded-full object-cover shadow-lg border-2 border-primary/20" />
-          )}
-          <UploadButton
-            endpoint="avatarUploader"
-            onClientUploadComplete={(res) => {
-              if (res?.[0]) {
-                setFormData({ ...formData, avatarUrl: res[0].url });
-              }
-            }}
-            onUploadError={(error: Error) => {
-              alert(`Erreur d'upload : ${error.message}`);
-            }}
-          />
-        </div>
+        <DirectImageUploader
+          value={formData.avatarUrl}
+          onChange={(url) => setFormData({ ...formData, avatarUrl: url })}
+          folder="avatar"
+          aspectRatio="square"
+        />
       </div>
 
       {/* Social Links Section */}

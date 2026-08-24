@@ -3,8 +3,8 @@
 import { useState, useTransition } from "react";
 import { addLink } from "@/app/actions/links";
 import { cn } from "@/lib/utils";
-import { Plus, X, Save, Image as ImageIcon } from "lucide-react";
-import { UploadButton } from "@/lib/uploadthing";
+import { Plus, X, Save } from "lucide-react";
+import { DirectImageUploader } from "@/components/ui/DirectImageUploader";
 
 export function LinkForm({ userId, onLinkAdded }: { userId?: string; onLinkAdded?: () => void }) {
   const [isPending, startTransition] = useTransition();
@@ -104,49 +104,13 @@ export function LinkForm({ userId, onLinkAdded }: { userId?: string; onLinkAdded
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-[0.6875rem] font-bold uppercase tracking-widest text-primary ml-1">Thumbnail (Optional)</label>
-            <div className="flex items-center gap-4 p-4 bg-surface-container-low rounded-xl border border-white/5">
-              {thumbnailUrl ? (
-                <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-white/10 shrink-0">
-                  <img src={thumbnailUrl} alt="Thumbnail preview" className="w-full h-full object-cover" />
-                  <button
-                    type="button"
-                    onClick={() => setThumbnailUrl("")}
-                    className="absolute inset-0 bg-black/60 opacity-0 hover:opacity-100 flex items-center justify-center text-error transition-opacity"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-              ) : (
-                <div className="w-16 h-16 rounded-lg bg-surface-container-highest flex items-center justify-center text-on-surface-variant/40 shrink-0 border border-dashed border-white/10">
-                  <ImageIcon className="w-6 h-6" />
-                </div>
-              )}
-              <div className="flex-1 flex flex-col gap-2">
-                <UploadButton
-                  endpoint="avatarUploader"
-                  onClientUploadComplete={(res) => {
-                    if (res && res[0]) {
-                      setThumbnailUrl(res[0].url);
-                    }
-                  }}
-                  onUploadError={(error: Error) => {
-                    alert(`Upload error: ${error.message}\nTip: You can also paste a direct image URL below.`);
-                  }}
-                  className="ut-button:bg-primary ut-button:hover:scale-[1.02] ut-button:active:scale-95 ut-button:transition-transform ut-button:h-9 ut-button:text-xs ut-button:px-4 ut-button:rounded-lg ut-allowed-content:hidden"
-                />
-                <div className="flex flex-col gap-1">
-                  <span className="text-[0.6rem] font-bold text-on-surface-variant/60 text-center">OR</span>
-                  <input
-                    type="url"
-                    placeholder="Paste image URL (e.g. https://...)"
-                    value={thumbnailUrl}
-                    onChange={(e) => setThumbnailUrl(e.target.value)}
-                    className="p-2 text-xs rounded-lg bg-surface-container-low text-on-surface border-none focus:ring-1 ring-primary placeholder:opacity-30"
-                  />
-                </div>
-              </div>
-            </div>
+            <label className="text-[0.6875rem] font-bold uppercase tracking-widest text-primary ml-1">Miniature (Optionnel)</label>
+            <DirectImageUploader
+              value={thumbnailUrl}
+              onChange={(url) => setThumbnailUrl(url)}
+              folder="thumbnails"
+              aspectRatio="square"
+            />
           </div>
         </div>
 

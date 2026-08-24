@@ -37,3 +37,10 @@ ui-debug.log*
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+# Scratch & Local tests
+/scratch/
+
+# Uploaded user media
+/public/uploads/*
+!/public/uploads/.gitkeep

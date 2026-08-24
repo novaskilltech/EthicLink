@@ -6,8 +6,8 @@ import { toggleLinkActive, deleteLink, updateLink } from "@/app/actions/links";
 import { cn } from "@/lib/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Trash2, ExternalLink, Edit2, X, Check, Image as ImageIcon } from "lucide-react";
-import { UploadButton } from "@/lib/uploadthing";
+import { GripVertical, Trash2, ExternalLink, Edit2, X, Check } from "lucide-react";
+import { DirectImageUploader } from "@/components/ui/DirectImageUploader";
 
 export function LinkCard({ 
   link, 
@@ -139,50 +139,14 @@ export function LinkCard({
             />
           </div>
 
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1.5">
             <label className="text-[0.6rem] font-bold uppercase tracking-widest text-on-surface-variant">Miniature (Optionnelle)</label>
-            <div className="flex items-center gap-4 p-3 bg-surface-container-low rounded-xl">
-              {editThumbnailUrl ? (
-                <div className="relative w-12 h-12 rounded-lg overflow-hidden border border-white/10 shrink-0">
-                  <img src={editThumbnailUrl} alt="Thumbnail preview" className="w-full h-full object-cover" />
-                  <button
-                    type="button"
-                    onClick={() => setEditThumbnailUrl("")}
-                    className="absolute inset-0 bg-black/60 opacity-0 hover:opacity-100 flex items-center justify-center text-error transition-opacity"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              ) : (
-                <div className="w-12 h-12 rounded-lg bg-surface-container-highest flex items-center justify-center text-on-surface-variant/40 shrink-0 border border-dashed border-white/10">
-                  <ImageIcon className="w-5 h-5" />
-                </div>
-              )}
-              <div className="flex-1 flex flex-col gap-2">
-                <UploadButton
-                  endpoint="avatarUploader"
-                  onClientUploadComplete={(res) => {
-                    if (res && res[0]) {
-                      setEditThumbnailUrl(res[0].url);
-                    }
-                  }}
-                  onUploadError={(error: Error) => {
-                    alert(`Upload error: ${error.message}\nTip: You can also paste a direct image URL below.`);
-                  }}
-                  className="ut-button:bg-primary ut-button:h-8 ut-button:text-[0.65rem] ut-button:px-3 ut-button:rounded-lg ut-allowed-content:hidden"
-                />
-                <div className="flex flex-col gap-1">
-                  <span className="text-[0.6rem] font-bold text-on-surface-variant/60 text-center">OR</span>
-                  <input
-                    type="url"
-                    placeholder="Coller l'URL d'une image (ex: https://...)"
-                    value={editThumbnailUrl}
-                    onChange={(e) => setEditThumbnailUrl(e.target.value)}
-                    className="p-2 text-xs rounded-lg bg-surface-container-low text-on-surface border-none focus:ring-1 ring-primary placeholder:opacity-30"
-                  />
-                </div>
-              </div>
-            </div>
+            <DirectImageUploader
+              value={editThumbnailUrl}
+              onChange={(url) => setEditThumbnailUrl(url)}
+              folder="thumbnails"
+              aspectRatio="square"
+            />
           </div>
 
           <div className="flex gap-2 justify-end pt-2">
